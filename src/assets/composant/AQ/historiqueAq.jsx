@@ -3,22 +3,24 @@ import axios from 'axios';
 
 const HistoriqueConnexions = () => {
   const [historiques, setHistoriques] = useState([]);
+  const [filteredHistoriques, setFilteredHistoriques] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
 
   const BASE_URL = 'http://localhost:3000';
 
-  // Fonction isolée pour pouvoir la réutiliser dans le bouton "Réessayer"
   const fetchHistoriques = useCallback(async () => {
     setLoading(true);
     try {
-      const token = localStorage.getItem('token'); // Récupération du token JWT
+      const token = localStorage.getItem('token');
       const response = await axios.get(`${BASE_URL}/api/utilisateur/historique`, {
         headers: {
-          Authorization: `Bearer ${token}`, // Passage du token
+          Authorization: `Bearer ${token}`,
         },
       });
       setHistoriques(response.data);
+      setFilteredHistoriques(response.data);
       setError(null);
     } catch (error) {
       setError("Échec du chargement de l'historique des connexions.");
@@ -31,6 +33,19 @@ const HistoriqueConnexions = () => {
   useEffect(() => {
     fetchHistoriques();
   }, [fetchHistoriques]);
+
+  useEffect(() => {
+    if (searchTerm === '') {
+      setFilteredHistoriques(historiques);
+    } else {
+      const filtered = historiques.filter(item => 
+        item.nom_uti.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.role.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.type_action.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      setFilteredHistoriques(filtered);
+    }
+  }, [searchTerm, historiques]);
 
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleString('fr-FR', {
@@ -72,8 +87,30 @@ const HistoriqueConnexions = () => {
           Historique des Connexions
         </h2>
         <span className="px-3 py-1 text-xs text-blue-600 bg-blue-100 rounded-full dark:bg-gray-800 dark:text-blue-400">
-          {historiques.length} connexions
+          {filteredHistoriques.length} connexions
         </span>
+      </div>
+
+      {/* Champ de recherche */}
+      <div className="mb-6">
+        <div className="relative max-w-xs">
+          <label htmlFor="search" className="sr-only">Rechercher</label>
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+              <svg className="w-5 h-5 text-gray-500 dark:text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd"></path>
+              </svg>
+            </div>
+            <input
+              type="text"
+              id="search"
+              className="block w-full p-2 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+              placeholder="Rechercher par nom, rôle ou action..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+        </div>
       </div>
 
       <div className="flex flex-col mt-6">
@@ -90,36 +127,44 @@ const HistoriqueConnexions = () => {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200 dark:divide-gray-700 dark:bg-gray-900">
-                  {historiques.map((item, index) => (
-                    <tr key={index}>
-                      <td className="px-4 py-4 text-sm font-medium whitespace-nowrap">
-                        <div className="flex items-center">
-                          <img
-                            className="object-cover w-8 h-8 rounded-full border-2 border-white dark:border-gray-700 shrink-0 mr-3"
-                            src={`${BASE_URL}/uploads/photos/${item.photo}`}
-                            alt={item.nom_uti}
-                            onError={(e) => {
-                              e.target.src = 'https://via.placeholder.com/32';
-                            }}
-                          />
-                          <h2 className="font-medium text-gray-800 dark:text-white">{item.nom_uti}</h2>
-                        </div>
-                      </td>
-                      <td className="px-4 py-4 text-sm whitespace-nowrap text-gray-700 dark:text-gray-200">{item.role}</td>
-                      <td className="px-4 py-4 text-sm whitespace-nowrap">
-                        <span className={`inline px-3 py-1 text-sm font-normal rounded-full ${
-                          item.type_action === 'login'
-                            ? 'text-emerald-500 bg-emerald-100/60 dark:bg-gray-800'
-                            : 'text-gray-500 bg-gray-100 dark:bg-gray-800 dark:text-gray-400'
-                        }`}>
-                          {item.type_action}
-                        </span>
-                      </td>
-                      <td className="px-4 py-4 text-sm whitespace-nowrap text-gray-700 dark:text-gray-200">
-                        {formatDate(item.date_action)}
+                  {filteredHistoriques.length > 0 ? (
+                    filteredHistoriques.map((item, index) => (
+                      <tr key={index}>
+                        <td className="px-4 py-4 text-sm font-medium whitespace-nowrap">
+                          <div className="flex items-center">
+                            <img
+                              className="object-cover w-8 h-8 rounded-full border-2 border-white dark:border-gray-700 shrink-0 mr-3"
+                              src={`${BASE_URL}/uploads/photos/${item.photo}`}
+                              alt={item.nom_uti}
+                              onError={(e) => {
+                                e.target.src = 'https://via.placeholder.com/32';
+                              }}
+                            />
+                            <h2 className="font-medium text-gray-800 dark:text-white">{item.nom_uti}</h2>
+                          </div>
+                        </td>
+                        <td className="px-4 py-4 text-sm whitespace-nowrap text-gray-700 dark:text-gray-200">{item.role}</td>
+                        <td className="px-4 py-4 text-sm whitespace-nowrap">
+                          <span className={`inline px-3 py-1 text-sm font-normal rounded-full ${
+                            item.type_action === 'login'
+                              ? 'text-emerald-500 bg-emerald-100/60 dark:bg-gray-800'
+                              : 'text-gray-500 bg-gray-100 dark:bg-gray-800 dark:text-gray-400'
+                          }`}>
+                            {item.type_action}
+                          </span>
+                        </td>
+                        <td className="px-4 py-4 text-sm whitespace-nowrap text-gray-700 dark:text-gray-200">
+                          {formatDate(item.date_action)}
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="4" className="px-4 py-4 text-sm text-center text-gray-500 dark:text-gray-400">
+                        Aucun résultat trouvé
                       </td>
                     </tr>
-                  ))}
+                  )}
                 </tbody>
               </table>
             </div>

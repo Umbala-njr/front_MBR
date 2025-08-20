@@ -64,9 +64,11 @@ const FabricationDropdown = ({ isOpen }) => {
       {dropdownOpen && isOpen && (
         <div className="ml-6 mt-1 space-y-1 border-l-2 border-white/20 pl-4">
           {[
-            { label: "Produit", to: "/AQ/produit" },
+            { label: "Matière végétale", to: "/AQ/produit" },
             { label: "Atelier", to: "/AQ/atelier" },
             { label: "Document", to: "/AQ/document" },
+            { label: "Echantillon", to: "/AQ/Mechant" },
+            { label: "Autre Methodes", to: "/AQ/methodefab" },
           ].map(({ label, to }) => (
             <NavLink
               key={to}
@@ -249,7 +251,7 @@ const Sidebar = ({ isOpen, setIsOpen, isMobile }) => {
           </NavLink>
 
           <NavLink
-            to="/AQ/mbr"
+            to="/AQ/mbr1"
             className={({ isActive }) => `
               flex items-center py-3 px-4
               rounded-xl 

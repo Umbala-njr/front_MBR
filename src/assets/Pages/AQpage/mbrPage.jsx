@@ -6,7 +6,7 @@ import MBRManager from '../../composant/AQ/Mbr';
 const MbrPage = () => {
 
   return (
-    <div className="flex">
+    <div className="flex flex-col w-full h-full">
       
 
       <div>

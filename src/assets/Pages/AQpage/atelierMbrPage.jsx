@@ -1,20 +1,19 @@
 import React, { useEffect, useState } from 'react';
-import Home from '../../composant/AQ/home';
+import AtelierByCodeFab from '../../composant/AQ/atelierMBR';
 
 
 
-
-const HomePage = () => {
+const AtelierBRPage = () => {
 
   return (
     <div className="flex flex-col w-full h-full">
       
 
       <div>
-        <Home/>
+        <AtelierByCodeFab/>
       </div>
     </div>
   );
 };
 
-export default HomePage;
+export default AtelierBRPage;

@@ -1,22 +1,22 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { CheckCircle, X, AlertCircle, Plus, FileText, Settings, Users } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 
 
 const MBRManager = () => {
+  const { code_fab, id_atelier } = useParams();
+
   const [formData, setFormData] = useState({
     num_mbr: '',
     BR: '',
-    code_fab: '',
-    id_atelier: '',
+    code_fab: code_fab,
+    id_atelier: id_atelier,
     id_doc: '',
     id_uti: ''
   });
 
-  const [fabrications, setFabrications] = useState([]);
   const [ateliers, setAteliers] = useState([]);
-  const [documents, setDocuments] = useState([]);
   const [mbrList, setMbrList] = useState([]);
   const [notification, setNotification] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -26,40 +26,16 @@ const MBRManager = () => {
     if (user && user.id_uti) {
       setFormData(prev => ({ ...prev, id_uti: user.id_uti }));
     }
-
-    axios.get('http://localhost:3000/api/fabrication/affichefabri')
-      .then(res => setFabrications(res.data))
-      .catch(err => {
-        console.error('Erreur fabrications', err);
-        showNotification('error', 'Erreur lors du chargement des fabrications');
-      });
-
-    axios.get('http://localhost:3000/api/atelier/afficheAtel')
-      .then(res => setAteliers(res.data))
-      .catch(err => {
-        console.error('Erreur ateliers', err);
-        showNotification('error', 'Erreur lors du chargement des ateliers');
-      });
+   
 
     fetchMBRAttente();
-  }, []);
+  }, [code_fab]);
 
-  useEffect(() => {
-    if (formData.code_fab) {
-      axios.get(`http://localhost:3000/api/document/afficheDoc/${formData.code_fab}`)
-        .then(res => setDocuments(res.data))
-        .catch(() => {
-          setDocuments([]);
-          showNotification('error', 'Aucune Document pour cette fabrication');
-        });
-    } else {
-      setDocuments([]);
-    }
-  }, [formData.code_fab]);
 
   const fetchMBRAttente = async () => {
     try {
-      const res = await axios.get('http://localhost:3000/api/mbr/afficheBr/attente');
+      // ✅ Interpolation corrigée avec backticks
+      const res = await axios.get(`http://localhost:3000/api/mbr/afficheBr/attente/${code_fab}`);
       setMbrList(res.data);
     } catch (err) {
       console.error('Erreur chargement MBR :', err);
@@ -83,7 +59,7 @@ const MBRManager = () => {
 
     try {
       const id_uti = localStorage.getItem("id_uti");
-      
+
       if (!id_uti) {
         showNotification("error", "Utilisateur non connecté");
         setIsLoading(false);
@@ -100,9 +76,8 @@ const MBRManager = () => {
       setFormData({
         num_mbr: "",
         BR: "",
-        code_fab: "",
-        id_atelier: "",
-        id_doc: "",
+        code_fab: code_fab,
+        id_atelier: id_atelier,
         id_uti: id_uti,
       });
 
@@ -118,18 +93,18 @@ const MBRManager = () => {
 
   const statsData = {
     total: mbrList.length,
-    enAttente: mbrList.filter(m => m.statut === 'En attente' || m.statut === 'attente').length,
+    enAttente: mbrList.filter(m => m.statut === 'En preparation' || m.statut === 'mbr_creer').length,
     enCours: mbrList.filter(m => m.statut === 'En cours' || m.statut === 'en_cours').length,
     termines: mbrList.filter(m => m.statut === 'Terminé' || m.statut === 'termine').length,
     ateliers: ateliers.length
   };
 
   const NotificationComponent = ({ notification, onClose }) => {
-    if (!notification) return null;
+  if (!notification) return null;
 
-    const { type, message } = notification;
-    const isSuccess = type === 'success';
-    
+  const { type, message } = notification;
+  const isSuccess = type === "success";
+
     return (
       <div className={`fixed top-4 right-4 z-50 p-3 sm:p-4 rounded-lg shadow-lg max-w-xs sm:max-w-sm animate-in slide-in-from-right duration-300 ${
         isSuccess ? 'bg-green-100 border border-green-400' : 'bg-red-100 border border-red-400'
@@ -157,13 +132,13 @@ const MBRManager = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-blue-50 py-3 px-2 sm:py-6 sm:px-4 lg:py-8 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-blue-50 py-3 px-2 sm:py-6 sm:px-4 lg:py-8 lg:px-8 ">
       <NotificationComponent 
         notification={notification} 
         onClose={() => setNotification(null)} 
       />
       
-      <div className="max-w-7xl mx-auto">
+      <div className="w-full h-full p-4 sm:p-6 flex flex-col gap-6">
         {/* En-tête */}
         <div className="bg-gradient-to-r from-green-800 to-green-600 text-white rounded-t-2xl shadow-2xl p-4 sm:p-6 md:p-8">
           <div className="flex flex-col sm:flex-row items-center justify-between">
@@ -193,7 +168,7 @@ const MBRManager = () => {
             <div className="bg-gradient-to-r from-yellow-500 to-yellow-600 text-white p-3 sm:p-4 md:p-6 rounded-xl shadow-lg">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs sm:text-sm md:text-base text-yellow-100">En Attente</p>
+                  <p className="text-xs sm:text-sm md:text-base text-yellow-100">En preparation</p>
                   <p className="text-xl sm:text-2xl md:text-3xl font-bold">{statsData.enAttente}</p>
                 </div>
                 <AlertCircle className="h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8 text-yellow-200" />
@@ -209,16 +184,7 @@ const MBRManager = () => {
                 <CheckCircle className="h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8 text-green-200" />
               </div>
             </div>
-            
-            <div className="bg-gradient-to-r from-purple-500 to-purple-600 text-white p-3 sm:p-4 md:p-6 rounded-xl shadow-lg">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs sm:text-sm md:text-base text-purple-100">Ateliers</p>
-                  <p className="text-xl sm:text-2xl md:text-3xl font-bold">{statsData.ateliers}</p>
-                </div>
-                <Settings className="h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8 text-purple-200" />
-              </div>
-            </div>
+          
           </div>
         </div>
 
@@ -271,88 +237,6 @@ const MBRManager = () => {
                 </div>
               </div>
 
-              {/* Colonne 2 - Sélections */}
-              <div className="space-y-4 sm:space-y-6">
-                <div className="bg-blue-50 p-4 sm:p-6 rounded-xl border-2 border-blue-200">
-                  <h3 className="text-base sm:text-lg font-semibold text-gray-700 mb-3 sm:mb-4 flex items-center">
-                    <Settings className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
-                    Configuration
-                  </h3>
-                  
-                  <div className="space-y-3 sm:space-y-4">
-                    <div>
-                      <label className="block text-sm sm:text-base text-gray-700 font-semibold mb-1 sm:mb-2">Fabrication *</label>
-                      <select
-                        name="code_fab"
-                        value={formData.code_fab}
-                        onChange={handleChange}
-                        className="w-full px-3 py-2 sm:px-4 sm:py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
-                        required
-                        disabled={isLoading}
-                      >
-                        <option value="">-- Choisir une fabrication --</option>
-                        {fabrications.map(fab => (
-                          <option key={fab.code_fab} value={fab.code_fab}>
-                            {fab.code_fab}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm sm:text-base text-gray-700 font-semibold mb-1 sm:mb-2">Atelier *</label>
-                      <select
-                        name="id_atelier"
-                        value={formData.id_atelier}
-                        onChange={handleChange}
-                        className="w-full px-3 py-2 sm:px-4 sm:py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
-                        required
-                        disabled={isLoading}
-                      >
-                        <option value="">-- Choisir un atelier --</option>
-                        {ateliers.map(at => (
-                          <option key={at.id_atelier} value={at.id_atelier}>
-                            {at.nom_atelier}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Colonne 3 - Document */}
-              <div className="space-y-4 sm:space-y-6">
-                <div className="bg-purple-50 p-4 sm:p-6 rounded-xl border-2 border-purple-200">
-                  <h3 className="text-base sm:text-lg font-semibold text-gray-700 mb-3 sm:mb-4 flex items-center">
-                    <FileText className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
-                    Documentation
-                  </h3>
-                  
-                  <div>
-                    <label className="block text-sm sm:text-base text-gray-700 font-semibold mb-1 sm:mb-2">Document *</label>
-                    <select
-                      name="id_doc"
-                      value={formData.id_doc}
-                      onChange={handleChange}
-                      className="w-full px-3 py-2 sm:px-4 sm:py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition duration-200"
-                      required
-                      disabled={!formData.code_fab || isLoading}
-                    >
-                      <option value="">
-                        {formData.code_fab 
-                          ? "-- Choisir un document --" 
-                          : "Sélectionnez d'abord une fabrication"}
-                      </option>
-                      {documents.map(doc => (
-                        <option key={doc.id_doc} value={doc.id_doc}>
-                          {doc.nom_doc}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-              </div>
             </div>
 
             {/* Bouton de soumission */}
@@ -449,7 +333,7 @@ const MBRManager = () => {
                       <td className="px-3 py-2 sm:px-4 sm:py-3">
                            <button className="flex items-center px-4 py-2 font-medium tracking-wide text-white capitalize transition-colors duration-300 transform bg-blue-600 rounded-lg hover:bg-blue-500 focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-80">
                              <Link
-                                to={`/AQ/echantillon/${mbr.id_mbr}`}
+                                to={`/AQ/echantillon/${mbr.id_mbr}/${mbr.code_fab}`}
                                 className="flex items-center px-4 py-2 font-medium tracking-wide text-white capitalize transition-colors duration-300 transform bg-blue-600 rounded-lg hover:bg-blue-500 focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-80"
                               >
                                 <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 mx-1" viewBox="0 0 24 24" fill="currentColor">

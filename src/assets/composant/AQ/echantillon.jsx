@@ -3,7 +3,7 @@ import axios from 'axios';
 import { useParams } from 'react-router-dom';
 
 const EchantillonManager = () => {
-  const { id_mbr } = useParams(); // ← On récupère l'id_mbr depuis l'URL
+  const { id_mbr } = useParams();
 
   const [formData, setFormData] = useState({
     nom_echan: '',
@@ -17,7 +17,7 @@ const EchantillonManager = () => {
     code_echan: '',
     embalage: '',
     neutralisation_OH: '',
-    id_mbr: id_mbr || '', // Initialisé depuis l'URL
+    id_mbr: id_mbr || '',
   });
 
   const [echantillons, setEchantillons] = useState([]);
@@ -72,86 +72,107 @@ const EchantillonManager = () => {
   }, [id_mbr]);
 
   return (
-    <div className="p-6 max-w-5xl mx-auto">
-      <h2 className="text-2xl font-bold mb-4">Ajouter un Échantillon pour MBR #{id_mbr}</h2>
+    <div className="min-h-screen bg-gray-50 p-6">
+      <div className="max-w-6xl mx-auto">
+        {/* Header */}
+        <div className="mb-8 p-4 bg-white rounded-lg shadow-sm">
+          <h1 className="text-3xl font-bold text-gray-800">Gestion des Échantillons</h1>
+          <p className="text-gray-600">MBR #{id_mbr}</p>
+        </div>
 
-      <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-4 bg-white p-4 shadow rounded">
-        {[
-          { label: "Nom échantillon", name: "nom_echan" },
-          { label: "Stade", name: "stade" },
-          { label: "Méthode", name: "methode_echan" },
-          { label: "Quantité", name: "quantite_echan", type: "number" },
-          { label: "Unité", name: "unite" },
-          { label: "Destination", name: "destination" },
-          { label: "Demande", name: "demande" },
-          { label: "Numéro BA", name: "num_BA" },
-          { label: "Code Échantillon", name: "code_echan" },
-          { label: "Emballage", name: "embalage" },
-          { label: "Neutralisation OH", name: "neutralisation_OH" },
-        ].map(({ label, name, type }) => (
-          <div key={name}>
-            <label className="block text-sm font-semibold">{label}</label>
-            <input
-              type={type || "text"}
-              name={name}
-              value={formData[name]}
-              onChange={handleChange}
-              className="w-full p-2 border border-gray-300 rounded"
-              required
-            />
+        {/* Form Section */}
+        <div className="mb-10 bg-white rounded-lg shadow-sm overflow-hidden">
+          <div className="bg-green-800 p-4">
+            <h2 className="text-xl font-semibold text-white">Ajouter un Échantillon</h2>
           </div>
-        ))}
-
-        <div>
-          <label className="block text-sm font-semibold">ID MBR</label>
-          <input
-            type="text"
-            value={id_mbr}
-            disabled
-            className="w-full p-2 border border-gray-300 rounded bg-gray-100"
-          />
-        </div>
-
-        <div className="col-span-2">
-          <button
-            type="submit"
-            className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
-          >
-            Ajouter
-          </button>
-        </div>
-      </form>
-
-      <h2 className="text-xl font-bold mt-8 mb-4">Liste des Échantillons liés à MBR #{id_mbr}</h2>
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm text-left border-collapse">
-          <thead className="bg-gray-200">
-            <tr>
-              <th className="p-2 border">Nom</th>
-              <th className="p-2 border">Stade</th>
-              <th className="p-2 border">Méthode</th>
-              <th className="p-2 border">Quantité</th>
-              <th className="p-2 border">Unité</th>
-              <th className="p-2 border">Destination</th>
-              <th className="p-2 border">Demande</th>
-              <th className="p-2 border">Code</th>
-            </tr>
-          </thead>
-          <tbody>
-            {echantillons.map((echan) => (
-              <tr key={echan.id_echan} className="hover:bg-gray-100">
-                <td className="p-2 border">{echan.nom_echan}</td>
-                <td className="p-2 border">{echan.stade}</td>
-                <td className="p-2 border">{echan.methode_echan}</td>
-                <td className="p-2 border">{echan.quantite_echan}</td>
-                <td className="p-2 border">{echan.unite}</td>
-                <td className="p-2 border">{echan.destination}</td>
-                <td className="p-2 border">{echan.demande}</td>
-                <td className="p-2 border">{echan.code_echan}</td>
-              </tr>
+          
+          <form onSubmit={handleSubmit} className="p-6 grid grid-cols-2 gap-6">
+            {[
+              { label: "Nom échantillon", name: "nom_echan" },
+              { label: "Stade", name: "stade" },
+              { label: "Méthode", name: "methode_echan" },
+              { label: "Quantité", name: "quantite_echan", type: "number" },
+              { label: "Unité", name: "unite" },
+              { label: "Destination", name: "destination" },
+              { label: "Demande", name: "demande" },
+              { label: "Numéro BA", name: "num_BA" },
+              { label: "Code Échantillon", name: "code_echan" },
+              { label: "Emballage", name: "embalage" },
+              { label: "Neutralisation OH", name: "neutralisation_OH" },
+            ].map(({ label, name, type }) => (
+              <div key={name} className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
+                <input
+                  type={type || "text"}
+                  name={name}
+                  value={formData[name]}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-700 focus:border-transparent"
+                  required
+                />
+              </div>
             ))}
-          </tbody>
-        </table>
+
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-1">ID MBR</label>
+              <input
+                type="text"
+                value={id_mbr}
+                disabled
+                className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100"
+              />
+            </div>
+
+            <div className="col-span-2 flex justify-end">
+              <button
+                type="submit"
+                className="px-6 py-2 bg-green-700 text-white font-medium rounded-md hover:bg-green-800 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-green-700 focus:ring-opacity-50"
+              >
+                Ajouter l'échantillon
+              </button>
+            </div>
+          </form>
+        </div>
+
+        {/* List Section */}
+        <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+          <div className="bg-green-800 p-4">
+            <h2 className="text-xl font-semibold text-white">Liste des Échantillons</h2>
+          </div>
+          
+          <div className="p-4">
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-green-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-green-800 uppercase tracking-wider">Nom</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-green-800 uppercase tracking-wider">Stade</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-green-800 uppercase tracking-wider">Méthode</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-green-800 uppercase tracking-wider">Quantité</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-green-800 uppercase tracking-wider">Unité</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-green-800 uppercase tracking-wider">Destination</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-green-800 uppercase tracking-wider">Demande</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-green-800 uppercase tracking-wider">Code</th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {echantillons.map((echan) => (
+                    <tr key={echan.id_echan} className="hover:bg-green-50 transition-colors duration-150">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{echan.nom_echan}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{echan.stade}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{echan.methode_echan}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{echan.quantite_echan}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{echan.unite}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{echan.destination}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{echan.demande}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{echan.code_echan}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

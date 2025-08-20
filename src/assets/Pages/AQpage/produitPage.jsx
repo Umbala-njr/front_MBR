@@ -5,7 +5,7 @@ import ProduitManager from '../../composant/AQ/Produit';
 const ProduitPage = () => {
 
   return (
-    <div className="flex">
+    <div className="flex flex-col w-full h-full">
       
 
       <div>

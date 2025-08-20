@@ -1,20 +1,18 @@
 import React, { useEffect, useState } from 'react';
-import Home from '../../composant/AQ/home';
+import FabricationMetList from '../../composant/AQ/methodefab';
 
 
-
-
-const HomePage = () => {
+const MethFabriPage = () => {
 
   return (
     <div className="flex flex-col w-full h-full">
       
 
       <div>
-        <Home/>
+        <FabricationMetList/>
       </div>
     </div>
   );
 };
 
-export default HomePage;
+export default MethFabriPage;

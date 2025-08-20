@@ -1,20 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import Home from '../../composant/AQ/home';
+import ModeleEchantillon from '../../composant/AQ/modeleechan';
 
-
-
-
-const HomePage = () => {
+const ModeleechanPage = () => {
 
   return (
     <div className="flex flex-col w-full h-full">
       
 
       <div>
-        <Home/>
+        <ModeleEchantillon/>
       </div>
     </div>
   );
 };
 
-export default HomePage;
+export default ModeleechanPage;

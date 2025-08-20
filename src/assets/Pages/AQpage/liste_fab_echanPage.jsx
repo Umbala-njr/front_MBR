@@ -1,20 +1,20 @@
 import React, { useEffect, useState } from 'react';
-import Home from '../../composant/AQ/home';
+import FabricationEchanList from '../../composant/AQ/liste_fab_echan';
 
 
 
 
-const HomePage = () => {
+const Fab_echanPage = () => {
 
   return (
     <div className="flex flex-col w-full h-full">
       
 
       <div>
-        <Home/>
+        <FabricationEchanList/>
       </div>
     </div>
   );
 };
 
-export default HomePage;
+export default Fab_echanPage;

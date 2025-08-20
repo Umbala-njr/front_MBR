@@ -18,7 +18,15 @@ import EchantillonPage from './assets/Pages/AQpage/echantillonPage';
 import HomePage from './assets/Pages/AQpage/homePage';
 import NavbarComponent from './assets/composant/production/navbar';
 import NavbarLayout from './assets/composant/LayoutAQ/productionLayout';
-
+import PetitEPage from './assets/Pages/AQpage/petite_etapePage';
+import MBR1Page from './assets/Pages/AQpage/fabricationBRPage';
+import AppareilPage from './assets/Pages/AQpage/appareilPage';
+import AtelierBRPage from './assets/Pages/AQpage/atelierMbrPage';
+import Fab_echanPage from './assets/Pages/AQpage/liste_fab_echanPage';
+import ModeleechanPage from './assets/Pages/AQpage/modele_echanPage';
+import Copie_echanPage from './assets/Pages/AQpage/copie_echanPage';
+import MethodePage from './assets/Pages/AQpage/methodePage';
+import MethFabriPage from './assets/Pages/AQpage/FabrimetPage';
 
 
 
@@ -44,10 +52,21 @@ function App() {
            <Route path="atelier" element={<AtelierManager />} />
            <Route path="etape" element={<EtapePage />} />
            <Route path="etape1/:code_fab" element={<Etape1Page />} /> 
-           <Route path="sousetape/:id_eta" element={<SousetapePage />} />  
+           <Route path="sousetape/:id_atelier/:id_eta" element={<PetitEPage />} />  
            <Route path="document" element={<DocumentPage />} />
-           <Route path="mbr" element={<MbrPage />} />
-            <Route path="echantillon/:id_mbr" element={<EchantillonPage />} />
+           <Route path="mbr/:code_fab" element={<AtelierBRPage/>} />
+           <Route path="creer-mbr/:code_fab/:id_atelier" element={<MbrPage/>}/>
+            <Route path="echantillon/:id_mbr/:code_fab" element={<Copie_echanPage/>} />
+            <Route path="ajout-parametre/:id_atelier/:id_eta/:id_peta" element={<SousetapePage/>}/>
+            <Route path="mbr1" element={<MBR1Page />} />
+            <Route path="appareil/:id_atelier" element={<AppareilPage />} />
+
+            <Route path="Mechant" element={<Fab_echanPage />} />
+            <Route path="echan/:code_fab" element={<ModeleechanPage />} />
+
+            {/* Route pour la méthode */}
+            <Route path="methode/:code_fab" element={<MethodePage />} />
+            <Route path="methodefab" element={<MethFabriPage />} />
           {/* ajoute d'autres sous-routes ici */}
         </Route>
         

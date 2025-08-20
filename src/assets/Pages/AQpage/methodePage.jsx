@@ -1,20 +1,18 @@
 import React, { useEffect, useState } from 'react';
-import Home from '../../composant/AQ/home';
+import MethodeManager from '../../composant/AQ/methode';
 
 
-
-
-const HomePage = () => {
+const MethodePage = () => {
 
   return (
     <div className="flex flex-col w-full h-full">
       
 
       <div>
-        <Home/>
+        <MethodeManager/>
       </div>
     </div>
   );
 };
 
-export default HomePage;
+export default MethodePage;

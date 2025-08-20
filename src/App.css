@@ -56,3 +56,20 @@
 .custom-table tbody > tr:hover td {
   background-color: #f0fdf4; /* vert clair au survol */
 }
+
+
+.noble-table .ant-table-thead > tr > th {
+  background: linear-gradient(90deg, #f9fafb, #f3f4f6);
+  font-weight: 600;
+  font-size: 1rem;
+  color: #374151;
+}
+
+.noble-table .ant-table-tbody > tr:nth-child(odd) {
+  background-color: #fafafa;
+}
+
+.noble-table .ant-table-tbody > tr:hover {
+  background-color: #f0f9ff;
+  transition: background 0.3s ease;
+}

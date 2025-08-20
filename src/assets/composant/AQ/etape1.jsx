@@ -134,7 +134,7 @@ const AjouterEtape = () => {
                       <td className="px-4 py-3">{etape.nom_atelier || etape.id_atelier}</td>
                       <td className="px-4 py-3">
                         <button
-                          onClick={() => window.location.href = `/AQ/sousetape/${etape.id_eta}`}
+                          onClick={() => window.location.href = `/AQ/sousetape/${etape.id_atelier}/${etape.id_eta}`}
                           className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition duration-300"
                         >
                           Sous-étapes

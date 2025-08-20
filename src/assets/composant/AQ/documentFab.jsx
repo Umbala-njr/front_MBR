@@ -6,7 +6,7 @@ const DocumentUploader = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredFabrications, setFilteredFabrications] = useState([]);
   const [selectedCodeFab, setSelectedCodeFab] = useState('');
-  const [file, setFile] = useState(null);
+  const [files, setFiles] = useState([]);
   const [message, setMessage] = useState('');
   const [isListOpen, setIsListOpen] = useState(false);
 
@@ -34,37 +34,54 @@ const DocumentUploader = () => {
   const handleSelectFabrication = (fab) => {
     setSelectedCodeFab(fab.code_fab);
     setSearchTerm(fab.nom_fab);
-    setIsListOpen(false); // Fermer la liste après sélection
+    setIsListOpen(false);
+  };
+
+  // Gérer la sélection des fichiers
+  const handleFileChange = (e) => {
+    setFiles([...e.target.files]);
+  };
+
+  // Supprimer un fichier sélectionné
+  const removeFile = (index) => {
+    const newFiles = [...files];
+    newFiles.splice(index, 1);
+    setFiles(newFiles);
   };
 
   // Gérer la soumission
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!selectedCodeFab || !file) {
-      setMessage('Veuillez sélectionner une fabrication et un fichier.');
+    if (!selectedCodeFab || files.length === 0) {
+      setMessage('Veuillez sélectionner une fabrication et au moins un fichier.');
       return;
     }
+
     const formData = new FormData();
     formData.append('code_fab', selectedCodeFab);
-    formData.append('document', file);
+    
+    // Ajouter chaque fichier au FormData
+    files.forEach(file => {
+      formData.append('documents', file); // 'documents' doit correspondre au nom dans multer
+    });
 
     try {
       const res = await axios.post('http://localhost:3000/api/document/ajoutDocBR', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       setMessage(res.data.message);
-      // Après ajout, réinitialiser le formulaire
+      // Réinitialiser après succès
       setSelectedCodeFab('');
       setSearchTerm('');
-      setFile(null);
+      setFiles([]);
     } catch (err) {
-      setMessage(err.response?.data?.error || 'Erreur lors de l’envoi');
+      setMessage(err.response?.data?.error || 'Erreur lors de l\'envoi');
     }
   };
 
   return (
     <div className="max-w-2xl mx-auto my-12 p-8 bg-white rounded-lg shadow-lg border border-gray-200 transition-transform transform hover:scale-105 hover:shadow-xl duration-300">
-      <h2 className="text-3xl font-semibold text-gray-800 text-center mb-6">Ajouter un Document</h2>
+      <h2 className="text-3xl font-semibold text-gray-800 text-center mb-6">Ajouter des Documents</h2>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-6">
         {/* Champ de recherche auto-complétion */}
@@ -76,7 +93,7 @@ const DocumentUploader = () => {
             value={searchTerm}
             onChange={(e) => {
               setSearchTerm(e.target.value);
-              setSelectedCodeFab(''); // Reset selection si on tape
+              setSelectedCodeFab('');
               setIsListOpen(true);
             }}
             onFocus={() => setIsListOpen(true)}
@@ -97,28 +114,40 @@ const DocumentUploader = () => {
           )}
         </div>
 
-        {/* Upload fichier */}
+        {/* Upload multiple de fichiers */}
         <div>
-          <label className="block mb-2 text-lg font-medium text-gray-700">Fichier (PDF, DOCX, XLSX...)</label>
+          <label className="block mb-2 text-lg font-medium text-gray-700">
+            Fichiers (PDF, DOCX, XLSX...) - Max 5 fichiers
+          </label>
           <div className="relative">
             <input
               type="file"
+              multiple
               accept=".pdf,.doc,.docx,.xls,.xlsx"
-              onChange={(e) => setFile(e.target.files[0])}
+              onChange={handleFileChange}
               className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 
                          file:rounded-full file:border-0
                          file:bg-blue-600 file:text-white
                          hover:file:bg-blue-700 transition"
             />
-            {file && (
-              <div className="mt-2 flex items-center justify-between bg-gray-100 p-2 rounded">
-                <span className="text-gray-700 truncate">{file.name}</span>
-                <button
-                  onClick={() => setFile(null)}
-                  className="ml-2 text-red-500 hover:text-red-700 font-semibold"
-                >
-                  Supprimer
-                </button>
+            {/* Liste des fichiers sélectionnés */}
+            {files.length > 0 && (
+              <div className="mt-4 space-y-2">
+                {files.map((file, index) => (
+                  <div key={index} className="flex items-center justify-between bg-gray-100 p-3 rounded">
+                    <span className="text-gray-700 truncate flex-1">{file.name}</span>
+                    <span className="text-xs text-gray-500 mx-2">
+                      {(file.size / 1024 / 1024).toFixed(2)} MB
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => removeFile(index)}
+                      className="ml-2 text-red-500 hover:text-red-700 font-semibold"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
               </div>
             )}
           </div>
@@ -127,15 +156,24 @@ const DocumentUploader = () => {
         {/* Bouton d'envoi */}
         <button
           type="submit"
-          className="w-full py-3 px-6 bg-gradient-to-r from-green-400 via-green-500 to-green-600 text-white font-semibold text-lg rounded-lg shadow-md hover:shadow-lg hover:scale-105 transition transform duration-200"
+          disabled={files.length === 0}
+          className={`w-full py-3 px-6 text-white font-semibold text-lg rounded-lg shadow-md hover:shadow-lg transition transform duration-200 ${
+            files.length === 0 
+              ? 'bg-gray-400 cursor-not-allowed' 
+              : 'bg-gradient-to-r from-green-400 via-green-500 to-green-600 hover:scale-105'
+          }`}
         >
-          Envoyer
+          {files.length > 1 ? `Envoyer ${files.length} fichiers` : 'Envoyer'}
         </button>
       </form>
 
       {/* Message de feedback */}
       {message && (
-        <div className="mt-6 p-4 rounded-lg bg-blue-50 border border-blue-200 text-blue-700 shadow-inner transition-colors duration-300">
+        <div className={`mt-6 p-4 rounded-lg border shadow-inner transition-colors duration-300 ${
+          message.includes('Erreur') 
+            ? 'bg-red-50 border-red-200 text-red-700' 
+            : 'bg-blue-50 border-blue-200 text-blue-700'
+        }`}>
           {message}
         </div>
       )}
