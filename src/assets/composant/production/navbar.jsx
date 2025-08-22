@@ -38,11 +38,11 @@ const NavbarComponent = () => {
   };
 
   const navigationLinks = [
-    { label: "Tableau de bord", href: "/dashboard" },
-    { label: "Projets", href: "/projects" },
-    { label: "Équipe", href: "/team" },
-    { label: "Rapports", href: "/reports" },
-    { label: "Contact", href: "/contact" }
+    { label: "Tableau de bord", href: "/das" },
+    { label: "Production", href: "/PROD/production" },
+    { label: "Utilisateur", href: "/PROD/utilisateurProd" },
+    { label: "Historique", href: "/PROD/historiqueProd" },
+    { label: "Notifications", href: "/contact" }
   ];
 
   const toggleMobileMenu = () => {

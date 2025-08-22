@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { NavLink } from 'react-router-dom';
 import axios from 'axios';
 import imageAQ from '../../photos/AQ MBR Management (1).png';
@@ -8,20 +8,53 @@ import { FiLogOut } from 'react-icons/fi';
 // Composant FabricationDropdown adapté pour le sidebar
 const FabricationDropdown = ({ isOpen }) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const containerRef = useRef(null);
+
+  const menuId = 'fabrication-menu';
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (containerRef.current && !containerRef.current.contains(e.target)) {
+        setDropdownOpen(false);
+      }
+    };
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') setDropdownOpen(false);
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
+
+  const handleToggle = () => setDropdownOpen((v) => !v);
 
   return (
-    <div className="relative">
-      {/* NavLink Fabrication avec trigger dropdown */}
-      <div
+    <div
+      ref={containerRef}
+      className="relative"
+      onMouseEnter={() => { if (!isOpen) setDropdownOpen(true); }}
+      onMouseLeave={() => { if (!isOpen) setDropdownOpen(false); }}
+    >
+      {/* Bouton déclencheur */}
+      <button
+        type="button"
+        aria-haspopup="menu"
+        aria-expanded={dropdownOpen}
+        aria-controls={menuId}
+        onClick={handleToggle}
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleToggle(); } }}
         className={`
+          w-full text-left
           flex items-center py-3 px-4
           rounded-xl 
           transition-all duration-200 ease-in-out
-          group cursor-pointer
+          group
           text-emerald-50/90 hover:bg-white/10 hover:text-white hover:shadow-md
           ${!isOpen && 'justify-center'}
         `}
-        onClick={() => setDropdownOpen(!dropdownOpen)}
       >
         <div className="relative">
           <svg
@@ -45,7 +78,7 @@ const FabricationDropdown = ({ isOpen }) => {
             </span>
             <svg 
               className={`w-4 h-4 ml-2 transition-transform duration-200 ${
-                dropdownOpen ? "rotate-180" : ""
+                dropdownOpen ? 'rotate-180' : ''
               }`} 
               fill="none" 
               stroke="currentColor" 
@@ -58,26 +91,31 @@ const FabricationDropdown = ({ isOpen }) => {
             </svg>
           </>
         )}
-      </div>
+      </button>
 
-      {/* Dropdown Menu - adapté au style du sidebar */}
+      {/* Menu ouvert - mode sidebar élargie */}
       {dropdownOpen && isOpen && (
-        <div className="ml-6 mt-1 space-y-1 border-l-2 border-white/20 pl-4">
+        <div
+          id={menuId}
+          role="menu"
+          className="ml-6 mt-1 space-y-1 border-l-2 border-white/20 pl-4 overflow-hidden"
+        >
           {[
-            { label: "Matière végétale", to: "/AQ/produit" },
-            { label: "Atelier", to: "/AQ/atelier" },
-            { label: "Document", to: "/AQ/document" },
-            { label: "Echantillon", to: "/AQ/Mechant" },
-            { label: "Autre Methodes", to: "/AQ/methodefab" },
+            { label: 'Matière végétale', to: '/AQ/produit' },
+            { label: 'Atelier', to: '/AQ/atelier' },
+            { label: 'Document', to: '/AQ/document' },
+            { label: 'Echantillon', to: '/AQ/Mechant' },
+            { label: 'Autre Methodes', to: '/AQ/methodefab' },
           ].map(({ label, to }) => (
             <NavLink
               key={to}
               to={to}
+              role="menuitem"
               className={({ isActive }) =>
                 `block px-3 py-2 text-sm rounded-lg transition-all duration-200 ${
                   isActive
-                    ? "bg-white/20 text-white shadow-lg backdrop-blur-sm border border-white/10"
-                    : "text-emerald-100/80 hover:bg-white/10 hover:text-white"
+                    ? 'bg-white/20 text-white shadow-lg backdrop-blur-sm border border-white/10'
+                    : 'text-emerald-100/80 hover:bg-white/10 hover:text-white'
                 }`
               }
               onClick={() => setDropdownOpen(false)}
@@ -85,6 +123,42 @@ const FabricationDropdown = ({ isOpen }) => {
               {label}
             </NavLink>
           ))}
+        </div>
+      )}
+
+      {/* Menu flyout - mode sidebar réduite */}
+      {dropdownOpen && !isOpen && (
+        <div
+          id={menuId}
+          role="menu"
+          className="absolute left-full top-0 ml-3 w-64 p-3 rounded-xl shadow-2xl bg-gradient-to-br from-emerald-800/95 to-emerald-900/95 border border-white/10 backdrop-blur-md z-50"
+        >
+          <div className="mb-2 px-2 text-sm font-semibold text-white/90">Fabrication</div>
+          <div className="space-y-1 pr-1">
+            {[
+              { label: 'Matière végétale', to: '/AQ/produit' },
+              { label: 'Atelier', to: '/AQ/atelier' },
+              { label: 'Document', to: '/AQ/document' },
+              { label: 'Echantillon', to: '/AQ/Mechant' },
+              { label: 'Autre Methodes', to: '/AQ/methodefab' },
+            ].map(({ label, to }) => (
+              <NavLink
+                key={to}
+                to={to}
+                role="menuitem"
+                className={({ isActive }) =>
+                  `block w-full px-3 py-2 text-sm rounded-lg transition-all duration-200 ${
+                    isActive
+                      ? 'bg-white/20 text-white shadow-lg backdrop-blur-sm border border-white/10'
+                      : 'text-emerald-100/90 hover:bg-white/10 hover:text-white'
+                  }`
+                }
+                onClick={() => setDropdownOpen(false)}
+              >
+                {label}
+              </NavLink>
+            ))}
+          </div>
         </div>
       )}
     </div>
@@ -158,7 +232,7 @@ const Sidebar = ({ isOpen, setIsOpen, isMobile }) => {
           border-r border-emerald-400/20
           shadow-2xl
           transition-all duration-300 ease-in-out
-          overflow-hidden
+          overflow-visible
           z-40
           ${isOpen ? 'w-72' : 'w-20'}
           ${isMobileMenuOpen ? 'block' : 'hidden md:flex'}
@@ -223,7 +297,7 @@ const Sidebar = ({ isOpen, setIsOpen, isMobile }) => {
         </div>
 
         {/* Navigation */}
-        <nav className="mt-0 px-4 space-y-2 overflow-y-auto max-h-[calc(100vh-8rem)] scrollbar-thin scrollbar-thumb-white/30 scrollbar-track-transparent">
+        <nav className="mt-0 px-4 space-y-2 overflow-y-auto max-h-[calc(100vh-8rem)] no-scrollbar">
           <NavLink
             to="/AQ/home"
             className={({ isActive }) => `

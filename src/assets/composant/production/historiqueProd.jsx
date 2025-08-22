@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
 
-const HistoriqueConnexions = () => {
+const HistoriqueProd = () => {
   const [historiques, setHistoriques] = useState([]);
   const [filteredHistoriques, setFilteredHistoriques] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -45,7 +45,7 @@ const HistoriqueConnexions = () => {
   useEffect(() => {
      const filtered = historiques
     .filter((item) =>
-      item.role === "AQ" // 👈 Ne garder que le rôle AQ
+      item.role !== "AQ" // 👈 Ne garder que le rôle AQ
     )
     .filter((item) =>
       item.nom_uti.toLowerCase().includes(searchNom.toLowerCase())
@@ -296,4 +296,4 @@ const HistoriqueConnexions = () => {
   );
 };
 
-export default HistoriqueConnexions;
+export default HistoriqueProd;

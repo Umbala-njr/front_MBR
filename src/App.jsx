@@ -27,11 +27,10 @@ import ModeleechanPage from './assets/Pages/AQpage/modele_echanPage';
 import Copie_echanPage from './assets/Pages/AQpage/copie_echanPage';
 import MethodePage from './assets/Pages/AQpage/methodePage';
 import MethFabriPage from './assets/Pages/AQpage/FabrimetPage';
-
-
-
-
-
+import UtilisateurprodPage from './assets/Pages/PRODpage/utilisateurprodPage';
+import HistoriqueprodPage from './assets/Pages/PRODpage/historiqueprodPage';
+import ProductionPage from './assets/Pages/PRODpage/productionPage';
+import MBRProdPage from './assets/Pages/PRODpage/mbrprodpage';
 
 function App() {
   return (
@@ -70,10 +69,14 @@ function App() {
           {/* ajoute d'autres sous-routes ici */}
         </Route>
         
-
+        {/* Routes protégées pour PROD */}
         <Route path="/PROD" element={<ProtectedRoute><NavbarLayout /></ProtectedRoute> }>
          <Route path="home" element={<HomePage/>} />
-
+         <Route path="utilisateurProd" element={<UtilisateurprodPage />} />
+        <Route path="historiqueProd" element={<HistoriqueprodPage />} />
+        <Route path="production" element={<ProductionPage />} />
+        <Route path="mbr/:code_fab" element={<MBRProdPage />} />
+            {/* ajoute d'autres sous-routes ici */}
         </Route>
 
         {/* Catch all */}

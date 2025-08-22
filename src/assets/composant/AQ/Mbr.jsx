@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { CheckCircle, X, AlertCircle, Plus, FileText, Settings, Users } from 'lucide-react';
+import { CheckCircle, X, AlertCircle, Plus, FileText, Settings, Users, Search, Filter } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
 
 
@@ -20,6 +20,9 @@ const MBRManager = () => {
   const [mbrList, setMbrList] = useState([]);
   const [notification, setNotification] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [isFetching, setIsFetching] = useState(false);
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem('utilisateur'));
@@ -33,13 +36,28 @@ const MBRManager = () => {
 
 
   const fetchMBRAttente = async () => {
+    setIsFetching(true);
     try {
-      // ✅ Interpolation corrigée avec backticks
       const res = await axios.get(`http://localhost:3000/api/mbr/afficheBr/attente/${code_fab}`);
       setMbrList(res.data);
     } catch (err) {
       console.error('Erreur chargement MBR :', err);
       showNotification('error', 'Erreur lors du chargement des MBR');
+    } finally {
+      setIsFetching(false);
+    }
+  };
+
+  const fetchMBR = async () => {
+    setIsFetching(true);
+    try {
+      const res = await axios.get(`http://localhost:3000/api/mbr/mbr`);
+      setMbrList(res.data);
+    } catch (err) {
+      console.error('Erreur chargement MBR :', err);
+      showNotification('error', 'Erreur lors du chargement des MBR');
+    } finally {
+      setIsFetching(false);
     }
   };
 
@@ -98,6 +116,20 @@ const MBRManager = () => {
     termines: mbrList.filter(m => m.statut === 'Terminé' || m.statut === 'termine').length,
     ateliers: ateliers.length
   };
+
+  const normalizeStatus = (s) => (s || '').toString().toLowerCase().replace(/\s/g, '_');
+  const filteredMbrs = mbrList.filter((m) => {
+    const search = searchTerm.trim().toLowerCase();
+    const matchesSearch = !search || [m.num_br, m.code_fab, m.nom_uti]
+      .some((val) => (val || '').toString().toLowerCase().includes(search));
+    const statusNorm = normalizeStatus(m.statut);
+    const matchesStatus =
+      statusFilter === 'all' ||
+      (statusFilter === 'attente' && (statusNorm.includes('attente') || statusNorm.includes('prepar'))) ||
+      (statusFilter === 'en_cours' && statusNorm.includes('en_cours')) ||
+      (statusFilter === 'termine' && statusNorm.includes('termin'));
+    return matchesSearch && matchesStatus;
+  });
 
   const NotificationComponent = ({ notification, onClose }) => {
   if (!notification) return null;
@@ -181,7 +213,17 @@ const MBRManager = () => {
                   <p className="text-xs sm:text-sm md:text-base text-green-100">En Cours</p>
                   <p className="text-xl sm:text-2xl md:text-3xl font-bold">{statsData.enCours}</p>
                 </div>
-                <CheckCircle className="h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8 text-green-200" />
+                <Settings className="h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8 text-green-200" />
+              </div>
+            </div>
+            
+            <div className="bg-gradient-to-r from-emerald-500 to-emerald-600 text-white p-3 sm:p-4 md:p-6 rounded-xl shadow-lg">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs sm:text-sm md:text-base text-emerald-100">Terminés</p>
+                  <p className="text-xl sm:text-2xl md:text-3xl font-bold">{statsData.termines}</p>
+                </div>
+                <CheckCircle className="h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8 text-emerald-200" />
               </div>
             </div>
           
@@ -278,16 +320,58 @@ const MBRManager = () => {
             </div>
           </div>
           
-          {mbrList.length === 0 ? (
+          {/* Barre de recherche et filtres */}
+          <div className="w-full mb-4 sm:mb-6">
+            <div className="flex flex-col sm:flex-row gap-3">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <input
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="Rechercher par MBR, code fabrication ou responsable..."
+                  className="w-full pl-9 pr-3 py-2 sm:py-2.5 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                />
+              </div>
+              <div className="relative w-full sm:w-56">
+                <Filter className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  className="w-full appearance-none pl-9 pr-8 py-2 sm:py-2.5 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white"
+                >
+                  <option value="all">Tous les statuts</option>
+                  <option value="attente">En attente / préparation</option>
+                  <option value="en_cours">En cours</option>
+                  <option value="termine">Terminés</option>
+                </select>
+                <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">▾</span>
+              </div>
+            </div>
+          </div>
+
+          {isFetching ? (
+            <div className="space-y-2">
+              {[...Array(5)].map((_, i) => (
+                <div key={i} className="animate-pulse h-10 bg-gray-100 rounded" />
+              ))}
+            </div>
+          ) : mbrList.length === 0 ? (
             <div className="text-center py-8 sm:py-10 md:py-12">
               <FileText className="h-12 w-12 sm:h-14 sm:w-14 md:h-16 md:w-16 text-gray-300 mx-auto mb-3 sm:mb-4" />
               <p className="text-base sm:text-lg md:text-xl text-gray-500">Aucun MBR en attente</p>
               <p className="text-xs sm:text-sm text-gray-400 mt-1">Les MBR créés apparaîtront ici</p>
             </div>
+          ) : filteredMbrs.length === 0 ? (
+            <div className="text-center py-8 sm:py-10 md:py-12">
+              <FileText className="h-12 w-12 sm:h-14 sm:w-14 md:h-16 md:w-16 text-gray-300 mx-auto mb-3 sm:mb-4" />
+              <p className="text-base sm:text-lg md:text-xl text-gray-500">Aucun résultat pour vos filtres</p>
+              <p className="text-xs sm:text-sm text-gray-400 mt-1">Modifiez votre recherche ou statut pour voir des éléments</p>
+            </div>
           ) : (
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto max-h-[60vh]">
               <table className="w-full min-w-[600px] bg-white shadow-lg rounded-xl overflow-hidden">
-                <thead className="bg-gradient-to-r from-green-600 to-green-700 text-white">
+                <thead className="bg-gradient-to-r from-green-600 to-green-700 text-white sticky top-0 z-10">
                   <tr>
                     {['ID', 'Numéro MBR', 'Code Fab.', 'Responsable', 'Statut', 'Echantillionage'].map((header) => (
                       <th 
@@ -300,7 +384,7 @@ const MBRManager = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
-                  {mbrList.map((mbr, index) => (
+                  {filteredMbrs.map((mbr, index) => (
                     <tr 
                       key={mbr.id_mbr} 
                       className={`hover:bg-gray-50 transition duration-200 ${
@@ -320,7 +404,7 @@ const MBRManager = () => {
                       <td className="px-3 py-2 sm:px-4 sm:py-3">
                         <span 
                           className={`inline-flex items-center px-2 py-1 sm:px-3 sm:py-1.5 rounded-full text-xs sm:text-sm font-bold shadow-sm ${
-                            (mbr.statut === 'En attente' || mbr.statut === 'attente')
+                            (mbr.statut === 'En attente' || mbr.statut === 'attente' || normalizeStatus(mbr.statut).includes('prepar'))
                               ? 'bg-yellow-100 text-yellow-800 border border-yellow-300' 
                               : (mbr.statut === 'En cours' || mbr.statut === 'en_cours')
                               ? 'bg-blue-100 text-blue-800 border border-blue-300'

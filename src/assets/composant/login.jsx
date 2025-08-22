@@ -71,7 +71,7 @@ const Login = () => {
 
     switch (normalizedRole) {
       case 'aq':
-        navigate('/AQ/utilisateur');
+        navigate('/AQ/home');
         break;
       case 'operateur':
         navigate('/PROD/home');

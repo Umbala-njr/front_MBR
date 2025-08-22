@@ -3,7 +3,7 @@ import axios from 'axios';
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer
 } from 'recharts';
-import { Calendar, BarChart3, ClipboardList, Users, Factory } from 'lucide-react';
+import { Calendar, BarChart3, ClipboardList, Users, Factory, Search, Filter, RotateCcw, Loader2 } from 'lucide-react';
 
 const Home = () => {
   const [stats, setStats] = useState({
@@ -18,6 +18,10 @@ const Home = () => {
   const [statMois, setStatMois] = useState([]);
   const [filtreFab, setFiltreFab] = useState('');
   const [filtreDate, setFiltreDate] = useState('');
+  const [isLoadingStats, setIsLoadingStats] = useState(true);
+  const [isLoadingEncours, setIsLoadingEncours] = useState(true);
+  const [isLoadingTermines, setIsLoadingTermines] = useState(true);
+  const [isLoadingGraph, setIsLoadingGraph] = useState(true);
 
   useEffect(() => {
     fetchStats();
@@ -28,6 +32,7 @@ const Home = () => {
 
   const fetchStats = async () => {
     try {
+      setIsLoadingStats(true);
       const [produits, fabrications, mbrs, utilisateurs, ateliers] = await Promise.all([
         axios.get('http://localhost:3000/api/produit/count'),
         axios.get('http://localhost:3000/api/fabrication/countFab'),
@@ -44,22 +49,39 @@ const Home = () => {
       });
     } catch (error) {
       console.error('Erreur de récupération des stats :', error);
+    } finally {
+      setIsLoadingStats(false);
     }
   };
 
   const fetchMBREnCours = async () => {
-    const res = await axios.get('http://localhost:3000/api/mbr/encours');
-    setMbrEncours(res.data);
+    try {
+      setIsLoadingEncours(true);
+      const res = await axios.get('http://localhost:3000/api/mbr/encours');
+      setMbrEncours(res.data);
+    } finally {
+      setIsLoadingEncours(false);
+    }
   };
 
   const fetchMBRTermines = async () => {
-    const res = await axios.get('http://localhost:3000/api/mbr/terminer');
-    setMbrTermines(res.data);
+    try {
+      setIsLoadingTermines(true);
+      const res = await axios.get('http://localhost:3000/api/mbr/terminer');
+      setMbrTermines(res.data);
+    } finally {
+      setIsLoadingTermines(false);
+    }
   };
 
   const fetchStatMois = async () => {
-    const res = await axios.get('http://localhost:3000/api/mbr/statistique-mensuelle');
-    setStatMois(res.data);
+    try {
+      setIsLoadingGraph(true);
+      const res = await axios.get('http://localhost:3000/api/mbr/statistique-mensuelle');
+      setStatMois(res.data);
+    } finally {
+      setIsLoadingGraph(false);
+    }
   };
 
   const filteredMBRTermines = mbrTermines.filter((mbr) => {
@@ -82,21 +104,30 @@ const Home = () => {
 
         {/* Statistiques globales */}
         <section className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
-          {Object.entries(stats).map(([label, count]) => (
-            <div key={label} className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 p-6 flex items-center space-x-4 border border-white/20 hover:scale-105 group">
-              <div className="p-3 bg-gradient-to-br from-green-100 to-blue-100 rounded-xl text-green-600 group-hover:from-green-200 group-hover:to-blue-200 transition-all duration-300">
-                {label === 'produits' && <Factory className="w-6 h-6" />}
-                {label === 'fabrications' && <BarChart3 className="w-6 h-6" />}
-                {label === 'mbrs' && <ClipboardList className="w-6 h-6" />}
-                {label === 'utilisateurs' && <Users className="w-6 h-6" />}
-                {label === 'ateliers' && <Factory className="w-6 h-6" />}
+          {isLoadingStats ? (
+            Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg p-6 border border-white/20">
+                <div className="animate-pulse h-6 w-24 bg-gray-200 rounded mb-3" />
+                <div className="animate-pulse h-4 w-32 bg-gray-100 rounded" />
               </div>
-              <div>
-                <h2 className="text-2xl font-bold text-gray-800">{count}</h2>
-                <p className="text-sm text-gray-600 capitalize">{label}</p>
+            ))
+          ) : (
+            Object.entries(stats).map(([label, count]) => (
+              <div key={label} className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 p-6 flex items-center space-x-4 border border-white/20 hover:scale-105 group">
+                <div className="p-3 bg-gradient-to-br from-green-100 to-blue-100 rounded-xl text-green-600 group-hover:from-green-200 group-hover:to-blue-200 transition-all duration-300">
+                  {label === 'produits' && <Factory className="w-6 h-6" />}
+                  {label === 'fabrications' && <BarChart3 className="w-6 h-6" />}
+                  {label === 'mbrs' && <ClipboardList className="w-6 h-6" />}
+                  {label === 'utilisateurs' && <Users className="w-6 h-6" />}
+                  {label === 'ateliers' && <Factory className="w-6 h-6" />}
+                </div>
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-800">{count}</h2>
+                  <p className="text-sm text-gray-600 capitalize">{label}</p>
+                </div>
               </div>
-            </div>
-          ))}
+            ))
+          )}
         </section>
 
         {/* MBR en cours */}
@@ -106,32 +137,43 @@ const Home = () => {
               <Calendar className="w-5 h-5 text-blue-600" />
             </div>
             <span>MBR en cours</span>
+            <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-700">{mbrEncours.length}</span>
           </h2>
-          <div className="overflow-x-auto">
-            <table className="min-w-full border-collapse bg-white rounded-lg overflow-hidden shadow-sm">
-              <thead className="bg-gradient-to-r from-green-50 to-blue-50">
-                <tr>
-                  <th className="border-b border-gray-200 px-3 py-3 text-sm font-semibold text-gray-700 text-left">Num MBR</th>
-                  <th className="border-b border-gray-200 px-3 py-3 text-sm font-semibold text-gray-700 text-left">Code Fabrication</th>
-                  <th className="border-b border-gray-200 px-3 py-3 text-sm font-semibold text-gray-700 text-left">Nom Fabrication</th>
-                  <th className="border-b border-gray-200 px-3 py-3 text-sm font-semibold text-gray-700 text-left">Atelier</th>
-                  <th className="border-b border-gray-200 px-3 py-3 text-sm font-semibold text-gray-700 text-left">Date</th>
-                  <th className="border-b border-gray-200 px-3 py-3 text-sm font-semibold text-gray-700 text-left">Utilisateur</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100">
-                {mbrEncours.map((mbr) => (
-                  <tr key={mbr.id_mbr} className="hover:bg-gradient-to-r hover:from-blue-25 hover:to-green-25 transition-colors duration-200">
-                    <td className="px-3 py-3 text-sm text-gray-900 font-medium">{mbr.num_br}</td>
-                    <td className="px-3 py-3 text-sm text-gray-700">{mbr.code_fab}</td>
-                    <td className="px-3 py-3 text-sm text-gray-700">{mbr.nom_fab}</td>
-                    <td className="px-3 py-3 text-sm text-gray-700">{mbr.nom_atelier}</td>
-                    <td className="px-3 py-3 text-sm text-gray-700">{mbr.date_emission}</td>
-                    <td className="px-3 py-3 text-sm text-gray-700">{mbr.nom_uti}</td>
-                  </tr>
+          <div className="overflow-x-auto max-h-[50vh]">
+            {isLoadingEncours ? (
+              <div className="space-y-2">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <div key={i} className="animate-pulse h-10 bg-gray-100 rounded" />
                 ))}
-              </tbody>
-            </table>
+              </div>
+            ) : mbrEncours.length === 0 ? (
+              <div className="text-center py-10 text-gray-500">Aucun MBR en cours</div>
+            ) : (
+              <table className="min-w-full border-collapse bg-white rounded-lg overflow-hidden shadow-sm">
+                <thead className="bg-gradient-to-r from-green-50 to-blue-50 sticky top-0 z-10">
+                  <tr>
+                    <th className="border-b border-gray-200 px-3 py-3 text-sm font-semibold text-gray-700 text-left">Num MBR</th>
+                    <th className="border-b border-gray-200 px-3 py-3 text-sm font-semibold text-gray-700 text-left">Code Fabrication</th>
+                    <th className="border-b border-gray-200 px-3 py-3 text-sm font-semibold text-gray-700 text-left">Nom Fabrication</th>
+                    <th className="border-b border-gray-200 px-3 py-3 text-sm font-semibold text-gray-700 text-left">Atelier</th>
+                    <th className="border-b border-gray-200 px-3 py-3 text-sm font-semibold text-gray-700 text-left">Date</th>
+                    <th className="border-b border-gray-200 px-3 py-3 text-sm font-semibold text-gray-700 text-left">Utilisateur</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {mbrEncours.map((mbr) => (
+                    <tr key={mbr.id_mbr} className="hover:bg-gradient-to-r hover:from-blue-25 hover:to-green-25 transition-colors duration-200">
+                      <td className="px-3 py-3 text-sm text-gray-900 font-medium">{mbr.num_br}</td>
+                      <td className="px-3 py-3 text-sm text-gray-700">{mbr.code_fab}</td>
+                      <td className="px-3 py-3 text-sm text-gray-700">{mbr.nom_fab}</td>
+                      <td className="px-3 py-3 text-sm text-gray-700">{mbr.nom_atelier}</td>
+                      <td className="px-3 py-3 text-sm text-gray-700">{mbr.date_emission}</td>
+                      <td className="px-3 py-3 text-sm text-gray-700">{mbr.nom_uti}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
           </div>
         </section>
 
@@ -144,47 +186,73 @@ const Home = () => {
             <span>MBR terminés et vérifiés</span>
           </h2>
           {/* Filtres */}
-          <div className="flex flex-col sm:flex-row gap-4 mb-6">
-            <input
-              type="text"
-              placeholder="Filtrer par code fabrication"
-              className="flex-1 border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent bg-white/80 backdrop-blur-sm"
-              value={filtreFab}
-              onChange={(e) => setFiltreFab(e.target.value)}
-            />
-            <input
-              type="month"
-              className="sm:w-48 border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-300 focus:border-transparent bg-white/80 backdrop-blur-sm"
-              value={filtreDate}
-              onChange={(e) => setFiltreDate(e.target.value)}
-            />
+          <div className="flex flex-col sm:flex-row gap-4 mb-6 items-stretch sm:items-end">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Filtrer par code fabrication"
+                className="w-full pl-9 border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent bg-white/80 backdrop-blur-sm"
+                value={filtreFab}
+                onChange={(e) => setFiltreFab(e.target.value)}
+              />
+            </div>
+            <div className="relative sm:w-56">
+              <Filter className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <input
+                type="month"
+                className="w-full pl-9 border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-300 focus:border-transparent bg-white/80 backdrop-blur-sm"
+                value={filtreDate}
+                onChange={(e) => setFiltreDate(e.target.value)}
+              />
+            </div>
+            <button
+              onClick={() => { setFiltreFab(''); setFiltreDate(''); }}
+              className="inline-flex items-center gap-2 px-3 py-2 text-sm rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 transition"
+              disabled={!filtreFab && !filtreDate}
+            >
+              <RotateCcw className="h-4 w-4" /> Réinitialiser
+            </button>
+            <span className="sm:ml-auto inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
+              {filteredMBRTermines.length} résultats
+            </span>
           </div>
           {/* Tableau filtré */}
-          <div className="overflow-x-auto">
-            <table className="min-w-full border-collapse bg-white rounded-lg overflow-hidden shadow-sm">
-              <thead className="bg-gradient-to-r from-green-50 to-blue-50">
-                <tr>
-                  <th className="border-b border-gray-200 px-3 py-3 text-sm font-semibold text-gray-700 text-left">Num MBR</th>
-                  <th className="border-b border-gray-200 px-3 py-3 text-sm font-semibold text-gray-700 text-left">Code Fab</th>
-                  <th className="border-b border-gray-200 px-3 py-3 text-sm font-semibold text-gray-700 text-left">Nom Fab</th>
-                  <th className="border-b border-gray-200 px-3 py-3 text-sm font-semibold text-gray-700 text-left">Atelier</th>
-                  <th className="border-b border-gray-200 px-3 py-3 text-sm font-semibold text-gray-700 text-left">Date</th>
-                  <th className="border-b border-gray-200 px-3 py-3 text-sm font-semibold text-gray-700 text-left">Utilisateur</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100">
-                {filteredMBRTermines.map((mbr) => (
-                  <tr key={mbr.id_mbr} className="hover:bg-gradient-to-r hover:from-green-25 hover:to-blue-25 transition-colors duration-200">
-                    <td className="px-3 py-3 text-sm text-gray-900 font-medium">{mbr.num_br}</td>
-                    <td className="px-3 py-3 text-sm text-gray-700">{mbr.code_fab}</td>
-                    <td className="px-3 py-3 text-sm text-gray-700">{mbr.nom_fab}</td>
-                    <td className="px-3 py-3 text-sm text-gray-700">{mbr.nom_atelier}</td>
-                    <td className="px-3 py-3 text-sm text-gray-700">{mbr.date_emission}</td>
-                    <td className="px-3 py-3 text-sm text-gray-700">{mbr.nom_uti}</td>
-                  </tr>
+          <div className="overflow-x-auto max-h-[50vh]">
+            {isLoadingTermines ? (
+              <div className="space-y-2">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <div key={i} className="animate-pulse h-10 bg-gray-100 rounded" />
                 ))}
-              </tbody>
-            </table>
+              </div>
+            ) : filteredMBRTermines.length === 0 ? (
+              <div className="text-center py-10 text-gray-500">Aucun MBR pour ces filtres</div>
+            ) : (
+              <table className="min-w-full border-collapse bg-white rounded-lg overflow-hidden shadow-sm">
+                <thead className="bg-gradient-to-r from-green-50 to-blue-50 sticky top-0 z-10">
+                  <tr>
+                    <th className="border-b border-gray-200 px-3 py-3 text-sm font-semibold text-gray-700 text-left">Num MBR</th>
+                    <th className="border-b border-gray-200 px-3 py-3 text-sm font-semibold text-gray-700 text-left">Code Fab</th>
+                    <th className="border-b border-gray-200 px-3 py-3 text-sm font-semibold text-gray-700 text-left">Nom Fab</th>
+                    <th className="border-b border-gray-200 px-3 py-3 text-sm font-semibold text-gray-700 text-left">Atelier</th>
+                    <th className="border-b border-gray-200 px-3 py-3 text-sm font-semibold text-gray-700 text-left">Date</th>
+                    <th className="border-b border-gray-200 px-3 py-3 text-sm font-semibold text-gray-700 text-left">Utilisateur</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {filteredMBRTermines.map((mbr) => (
+                    <tr key={mbr.id_mbr} className="hover:bg-gradient-to-r hover:from-green-25 hover:to-blue-25 transition-colors duration-200">
+                      <td className="px-3 py-3 text-sm text-gray-900 font-medium">{mbr.num_br}</td>
+                      <td className="px-3 py-3 text-sm text-gray-700">{mbr.code_fab}</td>
+                      <td className="px-3 py-3 text-sm text-gray-700">{mbr.nom_fab}</td>
+                      <td className="px-3 py-3 text-sm text-gray-700">{mbr.nom_atelier}</td>
+                      <td className="px-3 py-3 text-sm text-gray-700">{mbr.date_emission}</td>
+                      <td className="px-3 py-3 text-sm text-gray-700">{mbr.nom_uti}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
           </div>
         </section>
 
@@ -197,33 +265,39 @@ const Home = () => {
             <span>Diagramme mensuel des MBR</span>
           </h2>
           <div className="h-80">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={statMois} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e0e7ff" />
-                <XAxis dataKey="mois" tick={{ fontSize: 12 }} />
-                <YAxis tick={{ fontSize: 12 }} />
-                <Tooltip 
-                  contentStyle={{
-                    backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                    backdropFilter: 'blur(10px)',
-                    border: '1px solid rgba(255, 255, 255, 0.2)',
-                    borderRadius: '8px',
-                    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
-                  }}
-                />
-                <Bar 
-                  dataKey="total_mbr" 
-                  fill="url(#barGradient)" 
-                  radius={[4, 4, 0, 0]}
-                />
-                <defs>
-                  <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.9}/>
-                    <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.7}/>
-                  </linearGradient>
-                </defs>
-              </BarChart>
-            </ResponsiveContainer>
+            {isLoadingGraph ? (
+              <div className="h-full w-full flex items-center justify-center">
+                <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
+              </div>
+            ) : (
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={statMois} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e0e7ff" />
+                  <XAxis dataKey="mois" tick={{ fontSize: 12 }} />
+                  <YAxis tick={{ fontSize: 12 }} />
+                  <Tooltip 
+                    contentStyle={{
+                      backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                      backdropFilter: 'blur(10px)',
+                      border: '1px solid rgba(255, 255, 255, 0.2)',
+                      borderRadius: '8px',
+                      boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
+                    }}
+                  />
+                  <Bar 
+                    dataKey="total_mbr" 
+                    fill="url(#barGradient)" 
+                    radius={[4, 4, 0, 0]}
+                  />
+                  <defs>
+                    <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#10b981" stopOpacity={0.9}/>
+                      <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.7}/>
+                    </linearGradient>
+                  </defs>
+                </BarChart>
+              </ResponsiveContainer>
+            )}
           </div>
         </section>
         
