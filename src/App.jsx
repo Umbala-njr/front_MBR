@@ -31,6 +31,14 @@ import UtilisateurprodPage from './assets/Pages/PRODpage/utilisateurprodPage';
 import HistoriqueprodPage from './assets/Pages/PRODpage/historiqueprodPage';
 import ProductionPage from './assets/Pages/PRODpage/productionPage';
 import MBRProdPage from './assets/Pages/PRODpage/mbrprodpage';
+import ProduitprodPage from './assets/Pages/PRODpage/produitPage';
+import AttenteBRPage from './assets/Pages/PRODpage/attenteBRPage';
+import MatierePage from './assets/Pages/AQpage/matierePage';
+import FabmatierePage from './assets/Pages/AQpage/listefabmatierePage';
+import ColonneMATPage from './assets/Pages/AQpage/colonnematierePage';
+import DetailattentePage from './assets/Pages/PRODpage/detailattenteBrPage';
+import EchantillonaffichePage from './assets/Pages/PRODpage/MBRpage/AffichagePage/echantilonaffichePage';
+import MatiereaffichePage from './assets/Pages/PRODpage/MBRpage/AffichagePage/matiereaffichePage';
 
 function App() {
   return (
@@ -66,6 +74,9 @@ function App() {
             {/* Route pour la méthode */}
             <Route path="methode/:code_fab" element={<MethodePage />} />
             <Route path="methodefab" element={<MethFabriPage />} />
+            <Route path="matiere/:code_fab" element={<MatierePage />} />
+            <Route path="fabmatiere" element={<FabmatierePage />} />
+            <Route path="colonnematiere/:id_mat" element={<ColonneMATPage />} />
           {/* ajoute d'autres sous-routes ici */}
         </Route>
         
@@ -74,8 +85,13 @@ function App() {
          <Route path="home" element={<HomePage/>} />
          <Route path="utilisateurProd" element={<UtilisateurprodPage />} />
         <Route path="historiqueProd" element={<HistoriqueprodPage />} />
-        <Route path="production" element={<ProductionPage />} />
+        <Route path="production/:id_pro" element={<ProductionPage />} />
         <Route path="mbr/:code_fab" element={<MBRProdPage />} />
+        <Route path="produit" element={<ProduitprodPage />} />
+        <Route path="attente/:code_fab" element={<AttenteBRPage />} />
+        <Route path="detailattente/:id_mbr/:code_fab" element={<DetailattentePage />} />
+        <Route path="echantillonaffiche/:id_mbr/:code_fab" element={<EchantillonaffichePage />} />
+        <Route path="matiereaffiche/:code_fab" element={<MatiereaffichePage />} />
             {/* ajoute d'autres sous-routes ici */}
         </Route>
 

@@ -39,7 +39,7 @@ const NavbarComponent = () => {
 
   const navigationLinks = [
     { label: "Tableau de bord", href: "/das" },
-    { label: "Production", href: "/PROD/production" },
+    { label: "Production", href: "/PROD/produit" },
     { label: "Utilisateur", href: "/PROD/utilisateurProd" },
     { label: "Historique", href: "/PROD/historiqueProd" },
     { label: "Notifications", href: "/contact" }

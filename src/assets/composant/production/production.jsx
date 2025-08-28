@@ -2,14 +2,15 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios'; 
 import { useNavigate } from 'react-router-dom';
 import { Factory, Plus, Code, Package } from 'lucide-react';
+import { useParams } from 'react-router-dom';
 
 const FabricationProdList = () => {
   const [fabrications, setFabrications] = useState([]);
   const navigate = useNavigate();
-
+  const { id_pro } = useParams();
   useEffect(() => {
     //Décommentez cette ligne pour utiliser avec axios
-    axios.get('http://localhost:3000/api/fabrication/affichefabri')
+    axios.get(`http://localhost:3000/api/fabrication/affichefab/${id_pro}`)
     .then(res => setFabrications(res.data))
     .catch(err => console.error(err));
     

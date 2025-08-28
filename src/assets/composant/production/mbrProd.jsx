@@ -1,33 +1,57 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import cours  from "../../photos/images (1).jpg";
+import cours from "../../photos/images (1).jpg";
 import terminer from "../../photos/images.jpg";
 import attente from "../../photos/téléchargement.jpg";
+import axios from "axios";
 
 const MBRProdList = () => {
   const navigate = useNavigate();
   const { code_fab } = useParams();
   const [hoveredCard, setHoveredCard] = useState(null);
+  const [mbrList, setMbrList] = useState([]);
+  const [isFetching, setIsFetching] = useState(false);
+
+  // Charger les MBR au montage
+  useEffect(() => {
+    const fetchMBRAttente = async () => {
+      setIsFetching(true);
+      try {
+        const res = await axios.get(`http://localhost:3000/api/mbr/mbr/${code_fab}`);
+        setMbrList(res.data);
+      } catch (err) {
+        console.error("Erreur chargement MBR :", err);
+      } finally {
+        setIsFetching(false);
+      }
+    };
+
+    fetchMBRAttente();
+  }, [code_fab]);
+
+  const statsData = {
+    enAttente: mbrList.filter((m) => m.statut === "attente").length,
+    enCours: mbrList.filter((m) => m.statut === "en cours" || m.statut === "en cours").length,
+    termines: mbrList.filter((m) => m.statut === "terminer").length,
+  };
 
   const cards = [
     {
       title: "MBR Attente",
-      description:
-        "Voir tous les MBR en attente de traitement avec priorité et délais.",
+      description: "Voir tous les MBR en attente de traitement avec priorité et délais.",
       image: attente,
-      link: `/PROD/mbr/${code_fab}/attente`,
+      link: `/PROD/attente/${code_fab}`,
       status: "⏳ Attente",
       color: "from-green-800 to-green-900",
       bgGradient: "from-green-50 to-white",
       borderColor: "border-green-300",
       textColor: "text-green-900",
-      count: "12",
+      count: statsData.enAttente,
       icon: "⏳",
     },
     {
       title: "MBR En Cours",
-      description:
-        "Suivez en temps réel les MBR en cours de fabrication et leur progression.",
+      description: "Suivez en temps réel les MBR en cours de fabrication et leur progression.",
       image: cours,
       link: `/PROD/mbr/${code_fab}/encours`,
       status: "⚡ En cours",
@@ -35,13 +59,12 @@ const MBRProdList = () => {
       bgGradient: "from-green-50 to-white",
       borderColor: "border-green-400",
       textColor: "text-green-900",
-      count: "8",
+      count: statsData.enCours,
       icon: "⚡",
     },
     {
       title: "MBR Terminé",
-      description:
-        "Consultez l'historique complet des MBR terminés avec rapports détaillés.",
+      description: "Consultez l'historique complet des MBR terminés avec rapports détaillés.",
       image: terminer,
       link: `/PROD/mbr/${code_fab}/terminer`,
       status: "✅ Terminé",
@@ -49,7 +72,7 @@ const MBRProdList = () => {
       bgGradient: "from-green-50 to-white",
       borderColor: "border-green-400",
       textColor: "text-green-900",
-      count: "47",
+      count: statsData.termines,
       icon: "✅",
     },
   ];
@@ -169,6 +192,7 @@ const MBRProdList = () => {
                 {/* Footer Action */}
                 <div className="p-6">
                   <button
+                    onClick={() => navigate(card.link)}
                     className={`w-full py-4 px-6 rounded-2xl font-bold text-white bg-gradient-to-r ${card.color} hover:shadow-xl transform hover:scale-105 active:scale-95 transition-all duration-300 group-hover:shadow-2xl`}
                   >
                     <span className="flex items-center justify-center space-x-2">
@@ -188,9 +212,9 @@ const MBRProdList = () => {
             </div>
           ))}
         </div>
-        </div>
+      </div>
 
-      <style jsx>{`
+      <style>{`
         @keyframes slideInUp {
           from {
             opacity: 0;

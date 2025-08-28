@@ -105,6 +105,7 @@ const FabricationDropdown = ({ isOpen }) => {
             { label: 'Atelier', to: '/AQ/atelier' },
             { label: 'Document', to: '/AQ/document' },
             { label: 'Echantillon', to: '/AQ/Mechant' },
+            { label: 'Fiche matière', to: '/AQ/fabmatiere' },
             { label: 'Autre Methodes', to: '/AQ/methodefab' },
           ].map(({ label, to }) => (
             <NavLink

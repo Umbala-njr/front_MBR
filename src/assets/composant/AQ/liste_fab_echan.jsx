@@ -31,7 +31,7 @@ const FabricationEchanList = () => {
             <Factory className="w-8 h-8 text-white" />
           </div>
           <h1 className="text-4xl font-bold text-slate-800 mb-3">
-            Liste des Fabrications
+            Liste des Produits
           </h1>
           <p className="text-slate-600 text-lg max-w-2xl mx-auto">
             Gérez et organisez vos processus de fabrication avec tendraisse et efficacité.
@@ -56,7 +56,7 @@ const FabricationEchanList = () => {
                         <Package className="w-5 h-5 text-white" />
                       </div>
                       <div className="text-emerald-100 text-sm font-medium">
-                        Fabrication
+                        Produit
                       </div>
                     </div>
                     <h3 className="text-white font-bold text-lg leading-tight">

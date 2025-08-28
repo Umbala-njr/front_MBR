@@ -3,7 +3,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { Factory, Plus, Code, Package } from 'lucide-react';
 
-const FabricationBRList = () => {
+const FabricationMATList = () => {
   const [fabrications, setFabrications] = useState([]);
   const navigate = useNavigate();
 
@@ -18,8 +18,8 @@ const FabricationBRList = () => {
 
   const handleAfficher = (code_fab) => {
     // Décommentez cette ligne pour utiliser avec react-router-dom
-    navigate(`/AQ/mbr/${code_fab}`);
-    console.log(`Navigation vers /AQ/mbr/${code_fab}`);
+    navigate(`/AQ/matiere/${code_fab}`);
+    console.log(`Navigation vers /AQ/matiere/${code_fab}`);
   };
 
   return (
@@ -81,7 +81,7 @@ const FabricationBRList = () => {
                     className="w-full bg-gradient-to-r from-emerald-700 to-emerald-600 text-white font-semibold py-3 px-4 rounded-xl hover:from-emerald-800 hover:to-emerald-700 transition-all duration-300 flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl group-hover:scale-105 transform"
                   >
                     <Plus className="w-5 h-5" />
-                    <span>Créer une MBR</span>
+                    <span>Fiche Matiere</span>
                   </button>
                 </div>
               </div>
@@ -118,4 +118,4 @@ const FabricationBRList = () => {
   );
 };
 
-export default FabricationBRList;
+export default FabricationMATList;
