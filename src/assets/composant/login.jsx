@@ -55,20 +55,20 @@ const Login = () => {
     });
 
     const { token, role } = res.data;
-
-    const decoded = jwtDecode(token); // Utilisez la fonction importée
+    const decoded = jwtDecode(token);
     const id_uti = decoded.id || decoded.id_uti;
 
-    // ✅ Stocker dans le localStorage
+    // ⚡ Nettoyer avant d’enregistrer
+    localStorage.clear();
+
+    // ✅ Stockage unifié
     localStorage.setItem("token", token);
-    localStorage.setItem("role", role);
-    localStorage.setItem("id_uti", id_uti);
+    localStorage.setItem("user", JSON.stringify({ id_uti, role }));
 
     setSuccessMsg("Connexion réussie !");
 
-    // ✅ Redirection en fonction du rôle
+    // ✅ Redirection
     const normalizedRole = role?.trim().toLowerCase();
-
     switch (normalizedRole) {
       case 'aq':
         navigate('/AQ/home');

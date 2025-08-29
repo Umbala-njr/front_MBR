@@ -1,18 +1,19 @@
 import React, { useEffect, useState } from 'react';
-import NavigationMBR from '../../composant/production/detailsattenteMBR';
+import EtapeByMBR from '../../../../composant/Mbr/Affichage/etapeAffiche';
 
 
-const DetailattentePage = () => {
+
+const EtapebymbrPage = () => {
 
   return (
     <div className="flex flex-col w-full h-full">
       
 
       <div>
-        <NavigationMBR/>
+        <EtapeByMBR/>
       </div>
     </div>
   );
 };
 
-export default DetailattentePage;
+export default EtapebymbrPage;

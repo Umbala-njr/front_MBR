@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 
 const MatiereafficheManager = () => {
-  const { code_fab } = useParams(); // Récupération du code_fab depuis l'URL
+  const { id_mbr, code_fab } = useParams(); // Récupération du code_fab depuis l'URL
   const navigate = useNavigate();
   const [matieres, setMatieres] = useState([]);
   const [error, setError] = useState("");
@@ -24,7 +24,7 @@ const MatiereafficheManager = () => {
 
   // Naviguer vers la gestion des tableaux pour une matière
   const handleGererTableaux = (id_mat) => {
-    navigate(`/AQ/colonnematiere/${id_mat}`);
+    navigate(`/PROD/tableaumatiere/${id_mbr}/${id_mat}`);
   };
 
   return (

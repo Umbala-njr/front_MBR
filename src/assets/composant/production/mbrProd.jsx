@@ -53,7 +53,7 @@ const MBRProdList = () => {
       title: "MBR En Cours",
       description: "Suivez en temps réel les MBR en cours de fabrication et leur progression.",
       image: cours,
-      link: `/PROD/mbr/${code_fab}/encours`,
+      link: `/PROD/encours/${code_fab}`,
       status: "⚡ En cours",
       color: "from-green-700 to-green-900",
       bgGradient: "from-green-50 to-white",

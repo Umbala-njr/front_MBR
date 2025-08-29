@@ -3,15 +3,15 @@ import { useNavigate, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { FileText, ClipboardList, Workflow, ListChecks, Folder } from "lucide-react";       
 
-const NavigationMBR = () => {
+const NavigationEncoursMBR = () => {
   const navigate = useNavigate();
   const { id_mbr, code_fab } = useParams();
 
 
   // Liste des pages avec leur chemin et icône
   const pages = [
-    { label: "Fiche matière et solvant ...", path: `/PROD/matiereaffiche/${id_mbr}/${code_fab}`, icon: <FileText className="w-5 h-5" /> },
-    { label: "Check list des échantillons", path: `/PROD/echantillonaffiche/${id_mbr}/${code_fab}`, icon: <ClipboardList className="w-5 h-5" /> },
+    { label: "Fiche matière et solvant ...", path: `/PROD/matiereaction/${id_mbr}/${code_fab}`, icon: <FileText className="w-5 h-5" /> },
+    { label: "Check list des échantillons", path: `/PROD/echantillonaction/${id_mbr}/${code_fab}`, icon: <ClipboardList className="w-5 h-5" /> },
     { label: "Étape", path: `/PROD/etapeaffiche/${id_mbr}/${code_fab}`, icon: <Workflow className="w-5 h-5" /> },
     { label: "Autre démarche", path: "/autre-demarche", icon: <ListChecks className="w-5 h-5" /> },
     { label: "Liste document associé au MBR", path: "/documents-mbr", icon: <Folder className="w-5 h-5" /> },
@@ -42,4 +42,4 @@ const NavigationMBR = () => {
   );
 };
 
-export default NavigationMBR;
+export default NavigationEncoursMBR;

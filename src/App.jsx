@@ -36,9 +36,18 @@ import AttenteBRPage from './assets/Pages/PRODpage/attenteBRPage';
 import MatierePage from './assets/Pages/AQpage/matierePage';
 import FabmatierePage from './assets/Pages/AQpage/listefabmatierePage';
 import ColonneMATPage from './assets/Pages/AQpage/colonnematierePage';
-import DetailattentePage from './assets/Pages/PRODpage/detailattenteBrPage';
+import DetailattentePage from './assets/composant/production/detailattenteBrPage';
 import EchantillonaffichePage from './assets/Pages/PRODpage/MBRpage/AffichagePage/echantilonaffichePage';
 import MatiereaffichePage from './assets/Pages/PRODpage/MBRpage/AffichagePage/matiereaffichePage';
+import TableaumatierePage from './assets/Pages/PRODpage/MBRpage/AffichagePage/tableaumatierePage';
+import EtapebymbrPage from './assets/Pages/PRODpage/MBRpage/AffichagePage/etapeaffichePage';
+import PetitetapeBrPage from './assets/Pages/PRODpage/MBRpage/AffichagePage/petitetapeaffichePage';
+import ValeuretapeBrPage from './assets/Pages/PRODpage/MBRpage/AffichagePage/valeuretapebrPage';
+import EncoursBRPage from './assets/Pages/PRODpage/MBRpage/encoursBRPage';
+import DetailencoursPage from './assets/Pages/PRODpage/detailsencoursBrPage';
+import MatiereactionPage from './assets/Pages/PRODpage/MBRpage/Actionpage/matiereactionPage';
+import TableaumatiereactionPage from './assets/Pages/PRODpage/MBRpage/Actionpage/tableaumatiereActionPage';
+import EchantillonactionPage from './assets/Pages/PRODpage/MBRpage/Actionpage/echantillonActionPage';
 
 function App() {
   return (
@@ -91,7 +100,17 @@ function App() {
         <Route path="attente/:code_fab" element={<AttenteBRPage />} />
         <Route path="detailattente/:id_mbr/:code_fab" element={<DetailattentePage />} />
         <Route path="echantillonaffiche/:id_mbr/:code_fab" element={<EchantillonaffichePage />} />
-        <Route path="matiereaffiche/:code_fab" element={<MatiereaffichePage />} />
+        <Route path="matiereaffiche/:id_mbr/:code_fab" element={<MatiereaffichePage />} />
+        <Route path="tableaumatiere/:id_mbr/:id_mat" element={<TableaumatierePage />} />
+        <Route path="etapeaffiche/:id_mbr/:code_fab" element={<EtapebymbrPage />} />
+        <Route path="petitetapeaffiche/:id_mbr/:id_eta" element={<PetitetapeBrPage />} />
+        <Route path="valeuretapebr/:id_mbr/:id_eta/:id_peta" element={<ValeuretapeBrPage />} />
+        <Route path="encours/:code_fab" element={<EncoursBRPage />} />
+        <Route path="detailencours/:id_mbr/:code_fab" element={<DetailencoursPage />} />
+
+        <Route path="matiereaction/:id_mbr/:code_fab" element={<MatiereactionPage />} />
+        <Route path="tableaumatiereaction/:id_mbr/:id_mat" element={<TableaumatiereactionPage />} />
+        <Route path="echantillonaction/:id_mbr/:code_fab" element={<EchantillonactionPage />} />
             {/* ajoute d'autres sous-routes ici */}
         </Route>
 

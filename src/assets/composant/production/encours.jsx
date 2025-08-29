@@ -3,11 +3,11 @@ import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 
 
-const NobleMBRList = () => {
+const EncoursMBRList = () => {
   const { code_fab } = useParams();
   const [mbrs, setMbrs] = useState([]);
   const [loading, setLoading] = useState(true);
-  const statut = "attente"; // fixé
+  const statut = "en cours"; // fixé
   const navigate = useNavigate();
 
   // ⚡ récupère infos user connecté (depuis localStorage)
@@ -18,7 +18,7 @@ const NobleMBRList = () => {
   useEffect(() => {
     const fetchMBR = async () => {
       try {
-        const res = await axios.get(`http://localhost:3000/api/mbr/mbr/codefab`, {
+        const res = await axios.get(`http://localhost:3000/api/mbr/mbr/codefab/encours`, {
           params: { statut, code_fab },
         });
         setMbrs(res.data);
@@ -32,7 +32,7 @@ const NobleMBRList = () => {
   }, [statut, code_fab]);
 
   // ⚡ bouton "Lancement"
-  const handleLancement = async (id_mbr) => {
+const handleLancement = async (id_mbr) => {
     try {
       if (!id_uti) {
         alert("Utilisateur non connecté !");
@@ -40,7 +40,7 @@ const NobleMBRList = () => {
       }
 
       await axios.put(
-        `http://localhost:3000/api/MBR/commencerBR/${id_mbr}`,
+        `http://localhost:3000/api/MBR/terminerBR/${id_mbr}`,
         { id_uti }, // ✅ envoi dans le body
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -157,17 +157,17 @@ const NobleMBRList = () => {
                     <div className="flex items-center gap-3">
                       <div className="w-2 h-2 bg-emerald-400 rounded-full"></div>
                       <div>
-                        <span className="text-emerald-300 text-sm font-medium">Émetteur</span>
-                        <p className="text-white font-semibold">{mbr.nom_uti_emission}</p>
+                        <span className="text-emerald-300 text-sm font-medium">Lancer par</span>
+                        <p className="text-white font-semibold">{mbr.nom_uti_lancement}</p>
                       </div>
                     </div>
 
                     <div className="flex items-center gap-3">
                       <div className="w-2 h-2 bg-emerald-400 rounded-full"></div>
                       <div>
-                        <span className="text-emerald-300 text-sm font-medium">Date d'émission</span>
+                        <span className="text-emerald-300 text-sm font-medium">Date de lancement</span>
                         <p className="text-white font-semibold">
-                          {new Date(mbr.date_emi).toLocaleDateString("fr-FR", {
+                          {new Date(mbr.date_lance).toLocaleDateString("fr-FR", {
                             year: 'numeric',
                             month: 'long',
                             day: 'numeric'
@@ -183,7 +183,7 @@ const NobleMBRList = () => {
                   <div className="flex flex-col sm:flex-row gap-3">
                     <button
                       onClick={() =>
-                       navigate(`/PROD/detailattente/${mbr.id_mbr}/${code_fab}`)
+                       navigate(`/PROD/detailencours/${mbr.id_mbr}/${code_fab}`)
                       }
                       className="flex-1 bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 hover:border-white/40 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-200 flex items-center justify-center gap-2 group"
                     >
@@ -200,7 +200,7 @@ const NobleMBRList = () => {
                       <svg className="w-4 h-4 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-7 4h12l3 3H3l3-3z" />
                       </svg>
-                      Lancer
+                      Terminer
                     </button>
                   </div>
                 </div>
@@ -236,4 +236,4 @@ const NobleMBRList = () => {
   );
 };
 
-export default NobleMBRList;
+export default EncoursMBRList;
