@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FiLogOut, FiMenu, FiX, FiUser, FiSettings } from "react-icons/fi";
+import { FiLogOut, FiMenu, FiX, FiUser, FiSettings, FiBell } from "react-icons/fi";
 import imageAQ from '../../photos/AQ MBR Management (1).png';
 import axios from "axios";
 
@@ -8,19 +8,36 @@ const NavbarComponent = () => {
   const [user, setUser] = useState(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [notificationCount, setNotificationCount] = useState(0);
   const navigate = useNavigate();
 
   useEffect(() => {
     const token = localStorage.getItem("token");
     
     if (token) {
+      // Récupérer les informations de l'utilisateur
       axios.get("http://localhost:3000/api/utilisateur/profil", {
         headers: { Authorization: `Bearer ${token}` }
       })
       .then(res => setUser(res.data))
       .catch(err => console.error("Erreur récupération user :", err));
+      
+      // Récupérer le nombre de notifications
+      fetchNotificationCount(token);
     }
   }, []);
+
+  const fetchNotificationCount = (token) => {
+    axios.get("http://localhost:3000/api/campagne/affichebystatut/Emission", {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+    .then(res => {
+      setNotificationCount(res.data.length);
+    })
+    .catch(err => {
+      console.error("Erreur récupération notifications :", err);
+    });
+  };
 
   const handleLogout = async () => {
     try {
@@ -39,10 +56,15 @@ const NavbarComponent = () => {
 
   const navigationLinks = [
     { label: "Tableau de bord", href: "/das" },
-    { label: "Production", href: "/PROD/produit" },
+    { label: "Production", href: "/PROD/campagneProduction" },
     { label: "Utilisateur", href: "/PROD/utilisateurProd" },
     { label: "Historique", href: "/PROD/historiqueProd" },
-    { label: "Notifications", href: "/contact" }
+    { label: "Campagne", href: "/PROD/produit" },
+    { 
+      label: "Notification", 
+      href: "/PROD/campagneEmission",
+      hasNotification: true
+    },
   ];
 
   const toggleMobileMenu = () => {
@@ -85,9 +107,14 @@ const NavbarComponent = () => {
               <a
                 key={index}
                 href={link.href}
-                className="text-emerald-100 hover:text-white hover:bg-emerald-800/50 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ease-in-out"
+                className="relative text-emerald-100 hover:text-white hover:bg-emerald-800/50 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ease-in-out"
               >
                 {link.label}
+                {link.hasNotification && notificationCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                    {notificationCount}
+                  </span>
+                )}
               </a>
             ))}
           </div>
@@ -198,10 +225,15 @@ const NavbarComponent = () => {
               <a
                 key={index}
                 href={link.href}
-                className="block px-4 py-3 text-emerald-100 hover:text-white hover:bg-emerald-800/50 rounded-lg text-base font-medium transition-all duration-200"
+                className="relative flex items-center px-4 py-3 text-emerald-100 hover:text-white hover:bg-emerald-800/50 rounded-lg text-base font-medium transition-all duration-200"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 {link.label}
+                {link.hasNotification && notificationCount > 0 && (
+                  <span className="ml-2 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                    {notificationCount}
+                  </span>
+                )}
               </a>
             ))}
             

@@ -171,6 +171,23 @@ const Sidebar = ({ isOpen, setIsOpen, isMobile }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
 
+  const [newCampagnes, setNewCampagnes] = useState(0);
+
+const fetchNewCampagnes = async () => {
+  try {
+    const res = await axios.get("http://localhost:3000/api/campagne/affichebystatut/envoyer");
+    setNewCampagnes(res.data.length);
+  } catch (err) {
+    console.error("Erreur récupération campagnes:", err);
+  }
+};
+
+useEffect(() => {
+  fetchNewCampagnes();
+  const interval = setInterval(fetchNewCampagnes, 30000);
+  return () => clearInterval(interval);
+}, []);
+
   const handleLogout = async () => {
     try {
       const token = localStorage.getItem('token');
@@ -321,6 +338,50 @@ const Sidebar = ({ isOpen, setIsOpen, isMobile }) => {
             {isOpen && (
               <span className="ml-4 font-medium transition-all duration-200">
                 Dashboard
+              </span>
+            )}
+          </NavLink>
+          <NavLink
+            to="/AQ/campagneAQ"
+            className={({ isActive }) => `
+              flex items-center py-3 px-4
+              rounded-xl 
+              transition-all duration-200 ease-in-out
+              group
+              ${isActive 
+                ? 'bg-white/20 text-white shadow-lg backdrop-blur-sm border border-white/10' 
+                : 'text-emerald-50/90 hover:bg-white/10 hover:text-white hover:shadow-md'
+              }
+              ${!isOpen && 'justify-center'}
+            `}
+          >
+            <div className="relative">
+              {/* Icône campagne - megaphone */}
+              <svg
+                className="w-6 h-6 transition-transform duration-200 group-hover:scale-110"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M15 8l5-5m0 0v10m0-10L9 21H5a2 2 0 01-2-2V7a2 2 0 012-2h4l6 6z"
+                />
+              </svg>
+
+              {/* Badge notification */}
+              {newCampagnes > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs font-bold rounded-full px-1.5">
+                  {newCampagnes}
+                </span>
+              )}
+            </div>
+
+            {isOpen && (
+              <span className="ml-4 font-medium transition-all duration-200">
+                Campagne
               </span>
             )}
           </NavLink>

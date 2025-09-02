@@ -18,7 +18,7 @@ const ValeurEtapeTable = () => {
       .catch(err => console.error(err));
 
     // Charger sous_etapes
-    axios.get(`http://localhost:3000/api/sous_etape/sous_etape/${id_eta}`)
+    axios.get(`http://localhost:3000/api/sous_etape/sous_etape/${id_eta}/${id_peta }`)
       .then(res => setSousEtapes(res.data))
       .catch(err => console.error(err));
 

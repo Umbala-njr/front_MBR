@@ -48,6 +48,15 @@ import DetailencoursPage from './assets/Pages/PRODpage/detailsencoursBrPage';
 import MatiereactionPage from './assets/Pages/PRODpage/MBRpage/Actionpage/matiereactionPage';
 import TableaumatiereactionPage from './assets/Pages/PRODpage/MBRpage/Actionpage/tableaumatiereActionPage';
 import EchantillonactionPage from './assets/Pages/PRODpage/MBRpage/Actionpage/echantillonActionPage';
+import EtapebymbractionPage from './assets/Pages/PRODpage/MBRpage/Actionpage/etapeActionPage';
+import PetitetapembrActionPage from './assets/Pages/PRODpage/MBRpage/Actionpage/petiteetapeactionPage';
+import ValeuretapeactionBrPage from './assets/Pages/PRODpage/MBRpage/Actionpage/valeuretapeActionPage';
+import ListedocumentPage from './assets/Pages/PRODpage/MBRpage/Actionpage/liste_docPage';
+import CampagnePage from './assets/Pages/PRODpage/campagnePage';
+import CampagneCardPage from './assets/Pages/AQpage/campagneAqPage';
+import DetailPage from './assets/Pages/AQpage/detailsBrPage';
+import CampagneEmiPage from './assets/Pages/PRODpage/campagneEmissionPage';
+import CampagneprodPage from './assets/Pages/PRODpage/CampagneProdPage';
 
 function App() {
   return (
@@ -86,6 +95,9 @@ function App() {
             <Route path="matiere/:code_fab" element={<MatierePage />} />
             <Route path="fabmatiere" element={<FabmatierePage />} />
             <Route path="colonnematiere/:id_mat" element={<ColonneMATPage />} />
+
+            <Route path="campagneAQ" element={<CampagneCardPage />} />
+            <Route path="detailmbr/:id_mbr/:code_fab" element={<DetailPage />} />
           {/* ajoute d'autres sous-routes ici */}
         </Route>
         
@@ -111,6 +123,13 @@ function App() {
         <Route path="matiereaction/:id_mbr/:code_fab" element={<MatiereactionPage />} />
         <Route path="tableaumatiereaction/:id_mbr/:id_mat" element={<TableaumatiereactionPage />} />
         <Route path="echantillonaction/:id_mbr/:code_fab" element={<EchantillonactionPage />} />
+        <Route path="etapeaction/:id_mbr/:code_fab" element={<EtapebymbractionPage />} />
+        <Route path="petiteetapeaction/:id_mbr/:id_eta" element={<PetitetapembrActionPage />} />
+        <Route path="valeuretapeaction/:id_mbr/:id_eta/:id_peta" element={<ValeuretapeactionBrPage/>} />
+        <Route path="listedocument/:id_mbr" element={<ListedocumentPage />} />
+        <Route path="campagne/:code_fab" element={<CampagnePage />} />
+        <Route path="campagneEmission" element={<CampagneEmiPage />} />
+        <Route path="campagneProduction" element={<CampagneprodPage />} />
             {/* ajoute d'autres sous-routes ici */}
         </Route>
 

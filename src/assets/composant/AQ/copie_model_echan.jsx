@@ -68,35 +68,6 @@ const ModeleEchantillonCopie = () => {
     }
   };
 
-  // Fonction émission
-  const emissionMBR = async () => {
-    try {
-      setIsLoading(true);
-
-      // 🔹 Récupérer l'utilisateur connecté
-      const id_uti = localStorage.getItem("id_uti");
-
-      if (!id_uti) {
-        toast.error("❌ Utilisateur non connecté !");
-        setIsLoading(false);
-        return;
-      }
-
-      // 🔹 Appel backend
-      const res = await axios.put(
-        `http://localhost:3000/api/mbr/emission/${id_mbr}`, 
-        { id_uti }  // body envoyé
-      );
-
-      // 🔹 Affiche succès
-      toast.success(res.data.message || "✅ BR émis avec succès !");
-    } catch (error) {
-      console.error("Erreur émission BR :", error);
-      toast.error("❌ Erreur lors de l'émission du BR.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   return (
     <div className="p-6">
@@ -189,16 +160,6 @@ const ModeleEchantillonCopie = () => {
               ))}
             </tbody>
           </table>
-          {/* 🔹 Bouton Émission affiché UNIQUEMENT ici */}
-              <button
-                onClick={emissionMBR}
-                disabled={isLoading}
-                className={`mt-4 px-4 py-2 rounded text-white ${
-                  isLoading ? "bg-gray-400 cursor-not-allowed" : "bg-green-600 hover:bg-green-700"
-                }`}
-              >
-                {isLoading ? "Emission en cours..." : "Émission MBR"}
-              </button>
     </>
 
         )}

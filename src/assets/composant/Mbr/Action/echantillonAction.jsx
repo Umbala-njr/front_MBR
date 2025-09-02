@@ -43,7 +43,7 @@ const ListeEchantillonsAction = () => {
     setEditData({});
   };
 
-  const handleSave = async (id_echan) => {
+const handleSave = async (id_echan) => {
   try {
     const res = await axios.put(
       `http://localhost:3000/api/echantillion/modifierechan/${id_echan}`,
@@ -51,14 +51,11 @@ const ListeEchantillonsAction = () => {
     );
 
     const updated = [...echantillons];
-    updated[editIndex] = {
-      ...editData,
-      id_echan,
-      date_echan: new Date().toISOString(), // ⚡ ajoute la nouvelle date locale
-    };
+    updated[editIndex] = res.data; // ⚡ récupère la ligne mise à jour depuis l’API
 
     setEchantillons(updated);
     setEditIndex(null);
+    setEditData({});
   } catch (error) {
     console.error("Erreur lors de la modification :", error);
   }

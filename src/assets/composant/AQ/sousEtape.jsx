@@ -28,7 +28,7 @@ const SousEtapeByEtape = () => {
   const fetchSousEtapes = async () => {
     try {
       const res = await axios.get(
-        `http://localhost:3000/api/sous_etape/sous_etape/${id_eta}`
+        `http://localhost:3000/api/sous_etape/sous_etape/${id_eta}/${id_peta}`
       );
       setSousEtapes(res.data || []);
       if (res.data?.length > 0) {
@@ -95,6 +95,7 @@ const SousEtapeByEtape = () => {
         tolerence: "",
         criticite: "",
         valeur_std: "",
+        type_input: "",
       });
       setShowForm(false);
       fetchSousEtapes();
@@ -260,6 +261,25 @@ const SousEtapeByEtape = () => {
                   className="border border-green-300 p-2 rounded-md"
                 />
               </div>
+             <div className="flex flex-col">
+                <label className="text-green-800 font-semibold mb-2">
+                  Type Input
+                </label>
+                <select
+                  name="type_input"
+                  value={form.type_input}
+                  onChange={handleChange}
+                  required
+                  className="border border-green-300 p-2 rounded-md"
+                >
+                  <option value="">-- Sélectionner un type --</option>
+                  <option value="text">Texte</option>
+                  <option value="number">Nombre</option>
+                  <option value="date">Date</option>
+                  <option value="time">Heure</option>
+                </select>
+              </div>
+
 
               <button
                 type="submit"
@@ -283,6 +303,7 @@ const SousEtapeByEtape = () => {
                   <th className="px-4 py-3">Tolérance</th>
                   <th className="px-4 py-3">Criticité</th>
                   <th className="px-4 py-3">Valeur Std</th>
+                  <th className="px-4 py-3">Type Input</th>
                   {colonnes.map((c) => (
                     <th key={c.id_col} className="px-4 py-3">
                       {c.label}
@@ -363,6 +384,20 @@ const SousEtapeByEtape = () => {
                               className="w-full border rounded p-2"
                             />
                           </td>
+                          <td className="px-4 py-3">
+                            <select
+                              name="type_input"
+                              value={editData.type_input}
+                              onChange={handleEditChange}
+                              className="w-full border rounded p-2"
+                            >
+                              <option value="">-- Choisir --</option>
+                              <option value="text">Texte</option>
+                              <option value="number">Nombre</option>
+                              <option value="date">Date</option>
+                              <option value="time">Heure</option>
+                            </select>
+                          </td>   
 
                           {colonnes.map((c) => (
                             <td key={c.id_col} className="px-4 py-3">
@@ -402,6 +437,7 @@ const SousEtapeByEtape = () => {
                           <td className="px-4 py-3">{sous.tolerence || "-"}</td>
                           <td className="px-4 py-3">{sous.criticite}</td>
                           <td className="px-4 py-3">{sous.valeur_std}</td>
+                          <td className="px-4 py-3">{sous.type_input || "-"}</td>
 
                           {colonnes.map((c) => (
                             <td key={c.id_col} className="px-4 py-3">

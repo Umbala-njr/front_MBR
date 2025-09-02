@@ -19,8 +19,7 @@ const FabricationProdList = () => {
 
   const handleAfficher = (code_fab) => {
     // Décommentez cette ligne pour utiliser avec react-router-dom
-    navigate(`/PROD/mbr/${code_fab}`);
-    console.log(`Navigation vers /PROD/mbr/${code_fab}`);
+    navigate(`/PROD/campagne/${code_fab}`);
   };
 
   return (
