@@ -57,6 +57,14 @@ import CampagneCardPage from './assets/Pages/AQpage/campagneAqPage';
 import DetailPage from './assets/Pages/AQpage/detailsBrPage';
 import CampagneEmiPage from './assets/Pages/PRODpage/campagneEmissionPage';
 import CampagneprodPage from './assets/Pages/PRODpage/CampagneProdPage';
+import TerminerBrPage from './assets/Pages/PRODpage/terminerBrPage';
+import CampagneHomePage from './assets/Pages/AQpage/campagne/campagneHome';
+import CampagneBRPage from './assets/composant/AQ/campagne/campagneBrPage';
+import CampagneterminerPage from './assets/Pages/AQpage/campagne/campagneTerminerPage';
+import DemandeBrPage from './assets/Pages/PRODpage/demandeBrPage';
+import NotificationPage from './assets/Pages/AQpage/notificationAqPage';
+import DocumentCampPage from './assets/Pages/AQpage/campagne/documentcampPage';
+import ArchivePage from './assets/Pages/AQpage/Archive/archivePage';
 
 function App() {
   return (
@@ -79,8 +87,8 @@ function App() {
            <Route path="etape1/:code_fab" element={<Etape1Page />} /> 
            <Route path="sousetape/:id_atelier/:id_eta" element={<PetitEPage />} />  
            <Route path="document" element={<DocumentPage />} />
-           <Route path="mbr/:code_fab" element={<AtelierBRPage/>} />
-           <Route path="creer-mbr/:code_fab/:id_atelier" element={<MbrPage/>}/>
+           <Route path="mbr/:code_fab/:id_camp" element={<AtelierBRPage/>} />
+           <Route path="creer-mbr/:code_fab/:id_atelier/:id_camp" element={<MbrPage/>}/>
             <Route path="echantillon/:id_mbr/:code_fab" element={<Copie_echanPage/>} />
             <Route path="ajout-parametre/:id_atelier/:id_eta/:id_peta" element={<SousetapePage/>}/>
             <Route path="mbr1" element={<MBR1Page />} />
@@ -98,6 +106,14 @@ function App() {
 
             <Route path="campagneAQ" element={<CampagneCardPage />} />
             <Route path="detailmbr/:id_mbr/:code_fab" element={<DetailPage />} />
+
+            <Route path="campagneHome" element={<CampagneHomePage />} />
+            <Route path="campagneBR/encours" element={<CampagneBRPage />} />
+            <Route path="campagneBR/terminer" element={<CampagneterminerPage />} />
+            <Route path="notification" element={<NotificationPage />} />
+            <Route path="documentCamp/:code_fab/:id_camp" element={<DocumentCampPage />} />
+
+            <Route path="archive" element={<ArchivePage />} />
           {/* ajoute d'autres sous-routes ici */}
         </Route>
         
@@ -107,9 +123,9 @@ function App() {
          <Route path="utilisateurProd" element={<UtilisateurprodPage />} />
         <Route path="historiqueProd" element={<HistoriqueprodPage />} />
         <Route path="production/:id_pro" element={<ProductionPage />} />
-        <Route path="mbr/:code_fab" element={<MBRProdPage />} />
+        <Route path="mbr/:code_fab/:id_camp" element={<MBRProdPage />} />
         <Route path="produit" element={<ProduitprodPage />} />
-        <Route path="attente/:code_fab" element={<AttenteBRPage />} />
+        <Route path="attente/:code_fab/:id_camp" element={<AttenteBRPage />} />
         <Route path="detailattente/:id_mbr/:code_fab" element={<DetailattentePage />} />
         <Route path="echantillonaffiche/:id_mbr/:code_fab" element={<EchantillonaffichePage />} />
         <Route path="matiereaffiche/:id_mbr/:code_fab" element={<MatiereaffichePage />} />
@@ -117,7 +133,7 @@ function App() {
         <Route path="etapeaffiche/:id_mbr/:code_fab" element={<EtapebymbrPage />} />
         <Route path="petitetapeaffiche/:id_mbr/:id_eta" element={<PetitetapeBrPage />} />
         <Route path="valeuretapebr/:id_mbr/:id_eta/:id_peta" element={<ValeuretapeBrPage />} />
-        <Route path="encours/:code_fab" element={<EncoursBRPage />} />
+        <Route path="encours/:code_fab/:id_camp" element={<EncoursBRPage />} />
         <Route path="detailencours/:id_mbr/:code_fab" element={<DetailencoursPage />} />
 
         <Route path="matiereaction/:id_mbr/:code_fab" element={<MatiereactionPage />} />
@@ -130,6 +146,8 @@ function App() {
         <Route path="campagne/:code_fab" element={<CampagnePage />} />
         <Route path="campagneEmission" element={<CampagneEmiPage />} />
         <Route path="campagneProduction" element={<CampagneprodPage />} />
+        <Route path="terminerBR/:code_fab/:id_camp" element={<TerminerBrPage />} />
+        <Route path="demandeBR/:code_fab/:id_camp" element={<DemandeBrPage />} />
             {/* ajoute d'autres sous-routes ici */}
         </Route>
 

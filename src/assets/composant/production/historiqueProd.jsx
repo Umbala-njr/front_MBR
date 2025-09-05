@@ -43,17 +43,24 @@ const HistoriqueProd = () => {
 
   // Filtrage dynamique
   useEffect(() => {
-     const filtered = historiques
-    .filter((item) =>
-      item.role !== "AQ" // 👈 Ne garder que le rôle AQ
-    )
-    .filter((item) =>
-      item.nom_uti.toLowerCase().includes(searchNom.toLowerCase())
-    )
-    .filter((item) =>
-      searchAction ? item.type_action.toLowerCase().includes(searchAction.toLowerCase()) : true
+    let filtered = historiques;
+
+    // exclure le rôle AQ
+    filtered = filtered.filter(item => item.role !== "AQ");
+
+    // filtrer par nom
+    filtered = filtered.filter(item =>
+      item.nom_uti?.toLowerCase().includes(searchNom.toLowerCase())
     );
-    // Filtrer par date
+
+    // filtrer par type d’action
+    if (searchAction) {
+      filtered = filtered.filter(item =>
+        item.type_action?.toLowerCase().includes(searchAction.toLowerCase())
+      );
+    }
+
+    // filtrer par date début / fin
     if (dateDebut) {
       filtered = filtered.filter(item => new Date(item.date_action) >= new Date(dateDebut));
     }
@@ -85,6 +92,7 @@ const HistoriqueProd = () => {
   const goToPage = (pageNumber) => setCurrentPage(pageNumber);
   const goToPrevious = () => setCurrentPage(prev => Math.max(prev - 1, 1));
   const goToNext = () => setCurrentPage(prev => Math.min(prev + 1, totalPages));
+
 
   // Loading
   if (loading) {

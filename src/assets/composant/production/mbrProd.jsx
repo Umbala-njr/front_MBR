@@ -7,7 +7,7 @@ import axios from "axios";
 
 const MBRProdList = () => {
   const navigate = useNavigate();
-  const { code_fab } = useParams();
+  const { code_fab, id_camp } = useParams();
   const [hoveredCard, setHoveredCard] = useState(null);
   const [mbrList, setMbrList] = useState([]);
   const [isFetching, setIsFetching] = useState(false);
@@ -17,7 +17,7 @@ const MBRProdList = () => {
     const fetchMBRAttente = async () => {
       setIsFetching(true);
       try {
-        const res = await axios.get(`http://localhost:3000/api/mbr/mbr/${code_fab}`);
+        const res = await axios.get(`http://localhost:3000/api/mbr/mbr/${code_fab}/${id_camp}`);
         setMbrList(res.data);
       } catch (err) {
         console.error("Erreur chargement MBR :", err);
@@ -40,7 +40,7 @@ const MBRProdList = () => {
       title: "MBR Attente",
       description: "Voir tous les MBR en attente de traitement avec priorité et délais.",
       image: attente,
-      link: `/PROD/attente/${code_fab}`,
+      link: `/PROD/attente/${code_fab}/${id_camp}`,
       status: "⏳ Attente",
       color: "from-green-800 to-green-900",
       bgGradient: "from-green-50 to-white",
@@ -53,7 +53,7 @@ const MBRProdList = () => {
       title: "MBR En Cours",
       description: "Suivez en temps réel les MBR en cours de fabrication et leur progression.",
       image: cours,
-      link: `/PROD/encours/${code_fab}`,
+      link: `/PROD/encours/${code_fab}/${id_camp}`,
       status: "⚡ En cours",
       color: "from-green-700 to-green-900",
       bgGradient: "from-green-50 to-white",
@@ -66,7 +66,7 @@ const MBRProdList = () => {
       title: "MBR Terminé",
       description: "Consultez l'historique complet des MBR terminés avec rapports détaillés.",
       image: terminer,
-      link: `/PROD/mbr/${code_fab}/terminer`,
+      link: `/PROD/terminerBR/${code_fab}/${id_camp}`,
       status: "✅ Terminé",
       color: "from-green-600 to-green-800",
       bgGradient: "from-green-50 to-white",

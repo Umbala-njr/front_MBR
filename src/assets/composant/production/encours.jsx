@@ -4,7 +4,7 @@ import axios from "axios";
 
 
 const EncoursMBRList = () => {
-  const { code_fab } = useParams();
+  const { code_fab, id_camp } = useParams();
   const [mbrs, setMbrs] = useState([]);
   const [loading, setLoading] = useState(true);
   const statut = "en cours"; // fixé
@@ -18,18 +18,20 @@ const EncoursMBRList = () => {
   useEffect(() => {
     const fetchMBR = async () => {
       try {
-        const res = await axios.get(`http://localhost:3000/api/mbr/mbr/codefab/encours`, {
-          params: { statut, code_fab },
+        const res = await axios.get(`http://localhost:3000/api/mbr/mbr/codefabe/encours/${id_camp}`, {
+          params: { statut, code_fab},
         });
         setMbrs(res.data);
+        console.log(statut, code_fab);
       } catch (error) {
         console.error("Erreur récupération MBR :", error);
+        
       } finally {
         setLoading(false);
       }
     };
     fetchMBR();
-  }, [statut, code_fab]);
+  }, [statut, code_fab, id_camp]);
 
   // ⚡ bouton "Lancement"
 const handleLancement = async (id_mbr) => {

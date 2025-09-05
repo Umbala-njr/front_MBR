@@ -7,15 +7,15 @@ const CampagneProd = () => {
   const navigate = useNavigate();
 
   // Charger les campagnes depuis l'API
-const fetchCampagnes = async () => {
-  try {
-    const res = await axios.get("http://localhost:3000/api/campagne/afficher/Encours");
-    console.log("Réponse API:", res.data);
-    setCampagnes(res.data);
-  } catch (err) {
-    console.error("Erreur récupération campagnes:", err);
-  }
-};
+  const fetchCampagnes = async () => {
+    try {
+      const res = await axios.get("http://localhost:3000/api/campagne/afficher/Encours");
+      console.log("Réponse API:", res.data);
+      setCampagnes(res.data);
+    } catch (err) {
+      console.error("Erreur récupération campagnes:", err);
+    }
+  };
 
   useEffect(() => {
     fetchCampagnes();
@@ -23,28 +23,34 @@ const fetchCampagnes = async () => {
 
   // Fonction pour lancer une campagne
   const handleLancer = async (camp) => {
-  try {
-    // ⚡ récupérer l'utilisateur connecté depuis localStorage
-    const user = JSON.parse(localStorage.getItem("user"));
-    const id_uti = user?.id_uti; // extraction de l'id_uti
+    try {
+      // ⚡ récupérer l'utilisateur connecté depuis localStorage
+      const user = JSON.parse(localStorage.getItem("user"));
+      const id_uti = user?.id_uti; // extraction de l'id_uti
 
-    if (!id_uti) {
-      alert("Utilisateur non connecté !");
-      return;
+      if (!id_uti) {
+        alert("Utilisateur non connecté !");
+        return;
+      }
+
+      await axios.put(`http://localhost:3000/api/campagne/terminer/campBR/${camp.id_camp}`, { id_uti });
+
+      fetchCampagnes(); // rafraîchir la liste
+      alert(`Campagne "${camp.nom_fab}" lancée et tous les MBR non démarrés sont en attente`);
+    } catch (err) {
+      console.error("Erreur lancement campagne + MBR:", err);
     }
-
-    await axios.put(`http://localhost:3000/api/campagne/terminer/campBR/${camp.id_camp}`, { id_uti });
-
-    fetchCampagnes(); // rafraîchir la liste
-    alert(`Campagne "${camp.nom_fab}" lancée et tous les MBR non démarrés sont en attente`);
-  } catch (err) {
-    console.error("Erreur lancement campagne + MBR:", err);
-  }
-};
+  };
 
   // Redirection vers création MBR
-  const handleCreerMBR = (code_fab) => {
-    navigate(`/PROD/mbr/${code_fab}`);
+  const handleCreerMBR = (code_fab, id_camp) => {
+    navigate(`/PROD/mbr/${code_fab}/${id_camp}`);
+  };
+
+  // Fonction pour demande MBR
+  const handleDemandeMBR = (code_fab, id_camp) => {
+     navigate(`/PROD/demandeBR/${code_fab}/${id_camp}`);
+    
   };
 
   return (
@@ -68,7 +74,7 @@ const fetchCampagnes = async () => {
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-green-800 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
-                Période : {camp.date_debut_camp} → {camp.date_fin_camp}
+                Période :{new Date(camp.date_debut_camp).toLocaleDateString("fr-FR")} → {new Date(camp.date_fin_camp).toLocaleDateString("fr-FR")}
               </p>
               <p className="text-gray-700 flex items-center">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-green-800 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -90,25 +96,38 @@ const fetchCampagnes = async () => {
               </p>
             </div>
 
-            <div className="mt-6 flex gap-3">
+            <div className="mt-6 flex flex-col gap-3">
+              <div className="flex gap-3">
+                <button
+                  onClick={() => handleLancer(camp)}
+                  className="flex-1 px-4 py-2 bg-green-800 text-white rounded-lg shadow hover:bg-green-900 transition-colors flex items-center justify-center"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  Terminer
+                </button>
+                <button
+                  onClick={() => handleCreerMBR(camp.code_fab, camp.id_camp)}
+                  className="flex-1 px-4 py-2 bg-white text-green-800 border border-green-800 rounded-lg shadow hover:bg-green-50 transition-colors flex items-center justify-center"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  Voir MBR
+                </button>
+              </div>
+              
+              {/* Nouveau bouton Demande MBR */}
               <button
-                onClick={() => handleLancer(camp)}
-                className="flex-1 px-4 py-2 bg-green-800 text-white rounded-lg shadow hover:bg-green-900 transition-colors flex items-center justify-center"
+                onClick={() => handleDemandeMBR(camp.code_fab, camp.id_camp)}
+                className="w-full px-4 py-2 bg-emerald-600 text-white rounded-lg shadow hover:bg-emerald-700 transition-colors flex items-center justify-center"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                 </svg>
-                Lancer
-              </button>
-              <button
-                onClick={() => handleCreerMBR(camp.code_fab)}
-                className="flex-1 px-4 py-2 bg-white text-green-800 border border-green-800 rounded-lg shadow hover:bg-green-50 transition-colors flex items-center justify-center"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                Voir MBR
+                Demande MBR
               </button>
             </div>
           </div>

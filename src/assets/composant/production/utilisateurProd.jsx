@@ -144,7 +144,7 @@ const UtilisateurProdManager = () => {
               <Card
                 key={user.id_uti}
                 className="shadow-lg rounded-2xl border border-gray-100 hover:shadow-xl transition-all duration-300"
-                bodyStyle={{ padding: '20px' }}
+               
               >
                 <div className="flex items-center space-x-4">
                   <Avatar

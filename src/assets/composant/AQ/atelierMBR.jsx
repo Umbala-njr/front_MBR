@@ -4,7 +4,7 @@ import axios from "axios";
 import { Loader2, Factory } from "lucide-react"; // icônes
 
 const AtelierByCodeFab = () => {
-  const { code_fab } = useParams();
+  const { code_fab , id_camp} = useParams();
   const [ateliers, setAteliers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -73,7 +73,7 @@ const AtelierByCodeFab = () => {
 
                 <div className="flex justify-end">
                   <Link
-                    to={`/AQ/creer-mbr/${code_fab}/${atelier.id_atelier}`}
+                    to={`/AQ/creer-mbr/${code_fab}/${atelier.id_atelier}/${id_camp}`}
                     className="px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition"
                   >
                     Créer MBR

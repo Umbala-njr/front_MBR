@@ -3,7 +3,8 @@ import { NavLink } from 'react-router-dom';
 import axios from 'axios';
 import imageAQ from '../../photos/AQ MBR Management (1).png';
 import { useNavigate } from 'react-router-dom';
-import { FiLogOut } from 'react-icons/fi'; 
+import { FiLogOut, FiBell } from 'react-icons/fi'; 
+import { Archive } from "lucide-react"; // ✅ importer l’icône
 
 // Composant FabricationDropdown adapté pour le sidebar
 const FabricationDropdown = ({ isOpen }) => {
@@ -166,27 +167,77 @@ const FabricationDropdown = ({ isOpen }) => {
   );
 };
 
+// Remplace la logique dropdown par :
+const NotificationsDropdown = ({ isOpen, newDemandes }) => {
+  const navigate = useNavigate();
+
+  return (
+    <div className="relative">
+      <button
+        type="button"
+        onClick={() => navigate("/AQ/notification")}
+        className={`
+          w-full text-left flex items-center py-3 px-4
+          rounded-xl transition-all duration-200 ease-in-out
+          group text-emerald-50/90 hover:bg-white/10 hover:text-white hover:shadow-md
+          ${!isOpen && "justify-center"}
+        `}
+      >
+        <div className="relative">
+          <FiBell className="w-6 h-6 transition-transform duration-200 group-hover:scale-110" />
+          {newDemandes > 0 && (
+            <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+              {newDemandes}
+            </span>
+          )}
+        </div>
+        {isOpen && (
+          <span className="ml-4 font-medium transition-all duration-200">
+            Notifications
+          </span>
+        )}
+      </button>
+    </div>
+  );
+};
+
+
 const Sidebar = ({ isOpen, setIsOpen, isMobile }) => {
   const [user, setUser] = useState(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [newCampagnes, setNewCampagnes] = useState(0);
+  const [newDemandes, setNewDemandes] = useState(0);
   const navigate = useNavigate();
 
-  const [newCampagnes, setNewCampagnes] = useState(0);
+  const fetchNewCampagnes = async () => {
+    try {
+      const res = await axios.get("http://localhost:3000/api/campagne/affichebystatut/envoyer");
+      setNewCampagnes(res.data.length);
+    } catch (err) {
+      console.error("Erreur récupération campagnes:", err);
+    }
+  };
 
-const fetchNewCampagnes = async () => {
-  try {
-    const res = await axios.get("http://localhost:3000/api/campagne/affichebystatut/envoyer");
-    setNewCampagnes(res.data.length);
-  } catch (err) {
-    console.error("Erreur récupération campagnes:", err);
-  }
-};
+  const fetchNewDemandes = async () => {
+    try {
+      const res = await axios.get('http://localhost:3000/api/demandebr/demandes/envoyee');
+      setNewDemandes(res.data.length);
+    } catch (error) {
+      console.error('Erreur récupération demandes:', error);
+    }
+  };
 
-useEffect(() => {
-  fetchNewCampagnes();
-  const interval = setInterval(fetchNewCampagnes, 30000);
-  return () => clearInterval(interval);
-}, []);
+  useEffect(() => {
+    fetchNewCampagnes();
+    fetchNewDemandes();
+    
+    const interval = setInterval(() => {
+      fetchNewCampagnes();
+      fetchNewDemandes();
+    }, 30000);
+    
+    return () => clearInterval(interval);
+  }, []);
 
   const handleLogout = async () => {
     try {
@@ -341,6 +392,7 @@ useEffect(() => {
               </span>
             )}
           </NavLink>
+          
           <NavLink
             to="/AQ/campagneAQ"
             className={({ isActive }) => `
@@ -356,7 +408,6 @@ useEffect(() => {
             `}
           >
             <div className="relative">
-              {/* Icône campagne - megaphone */}
               <svg
                 className="w-6 h-6 transition-transform duration-200 group-hover:scale-110"
                 fill="none"
@@ -370,15 +421,12 @@ useEffect(() => {
                   d="M15 8l5-5m0 0v10m0-10L9 21H5a2 2 0 01-2-2V7a2 2 0 012-2h4l6 6z"
                 />
               </svg>
-
-              {/* Badge notification */}
               {newCampagnes > 0 && (
                 <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs font-bold rounded-full px-1.5">
                   {newCampagnes}
                 </span>
               )}
             </div>
-
             {isOpen && (
               <span className="ml-4 font-medium transition-all duration-200">
                 Campagne
@@ -387,7 +435,7 @@ useEffect(() => {
           </NavLink>
 
           <NavLink
-            to="/AQ/mbr1"
+            to="/AQ/campagneHome"
             className={({ isActive }) => `
               flex items-center py-3 px-4
               rounded-xl 
@@ -424,7 +472,14 @@ useEffect(() => {
           {/* Composant FabricationDropdown intégré */}
           <FabricationDropdown isOpen={isOpen} />
 
-           <NavLink
+          {/* Composant NotificationsDropdown intégré */}
+          <NotificationsDropdown 
+            isOpen={isOpen} 
+            newDemandes={newDemandes} 
+            setNewDemandes={setNewDemandes} 
+          />
+
+          <NavLink
             to="/AQ/etape"
             className={({ isActive }) => `
               flex items-center py-3 px-4
@@ -481,8 +536,6 @@ useEffect(() => {
             )}
           </NavLink>
 
-         
-
           <NavLink
             to="/AQ/historique"
             className={({ isActive }) => `
@@ -505,6 +558,30 @@ useEffect(() => {
             {isOpen && (
               <span className="ml-4 font-medium transition-all duration-200">
                 Historique
+              </span>
+            )}
+          </NavLink>
+
+          <NavLink
+            to="/AQ/archive"
+            className={({ isActive }) => `
+              flex items-center py-3 px-4
+              rounded-xl 
+              transition-all duration-200 ease-in-out
+              group
+              ${isActive 
+                ? 'bg-white/20 text-white shadow-lg backdrop-blur-sm border border-white/10' 
+                : 'text-emerald-50/90 hover:bg-white/10 hover:text-white hover:shadow-md'
+              }
+              ${!isOpen && 'justify-center'}
+            `}
+          >
+            <div className="relative">
+              <Archive className="w-6 h-6 transition-transform duration-200 group-hover:scale-110" />
+            </div>
+            {isOpen && (
+              <span className="ml-4 font-medium transition-all duration-200">
+                Archive
               </span>
             )}
           </NavLink>

@@ -24,14 +24,15 @@ const NotificationComponent = ({ notification, onClose }) => {
 };
 
 const MBRManager = () => {
-  const { code_fab, id_atelier } = useParams();
+  const { code_fab, id_atelier, id_camp } = useParams();
 
   const [formData, setFormData] = useState({
     num_mbr: '',
     BR: '',
     code_fab: code_fab,
     id_atelier: id_atelier,
-    id_uti: ''
+    id_uti: '',
+    id_camp:id_camp
   });
   const [mbrList, setMbrList] = useState([]);
   const [notification, setNotification] = useState(null);
@@ -49,7 +50,7 @@ const MBRManager = () => {
   const fetchMBRAttente = async () => {
     setIsFetching(true);
     try {
-      const res = await axios.get(`http://localhost:3000/api/mbr/afficheBr/attente/${code_fab}`);
+      const res = await axios.get(`http://localhost:3000/api/mbr/afficheBr/attente/${code_fab}/${id_camp}`);
       setMbrList(res.data);
     } catch (err) {
       console.error('Erreur chargement MBR :', err);
@@ -96,6 +97,7 @@ const MBRManager = () => {
         code_fab: code_fab,
         id_atelier: id_atelier,
         id_uti: id_uti,
+        id_camp:id_camp
       });
 
       await fetchMBRAttente();

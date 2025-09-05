@@ -3,11 +3,11 @@ import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 
 
-const NobleMBRList = () => {
+const TerminerMBRList = () => {
   const { code_fab, id_camp } = useParams();
   const [mbrs, setMbrs] = useState([]);
   const [loading, setLoading] = useState(true);
-  const statut = "attente"; // fixé
+  const statut = "terminer"; // fixé
   const navigate = useNavigate();
 
   // ⚡ récupère infos user connecté (depuis localStorage)
@@ -18,8 +18,8 @@ const NobleMBRList = () => {
   useEffect(() => {
     const fetchMBR = async () => {
       try {
-        const res = await axios.get(`http://localhost:3000/api/mbr/mbr/codefab`, {
-          params: { statut, code_fab, id_camp },
+        const res = await axios.get(`http://localhost:3000/api/mbr/mbr/codefab/terminer/${id_camp}`, {
+          params: { statut, code_fab},
         });
         setMbrs(res.data);
       } catch (error) {
@@ -31,32 +31,6 @@ const NobleMBRList = () => {
     fetchMBR();
   }, [statut, code_fab]);
 
-  // ⚡ bouton "Lancement"
-  const handleLancement = async (id_mbr) => {
-    try {
-      if (!id_uti) {
-        alert("Utilisateur non connecté !");
-        return;
-      }
-
-      await axios.put(
-        `http://localhost:3000/api/MBR/commencerBR/${id_mbr}`,
-        { id_uti }, // ✅ envoi dans le body
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-
-      alert("MBR lancé avec succès !");
-        setMbrs((prev) => prev.filter((m) => m.id_mbr !== id_mbr));
-      setMbrs((prev) =>
-        prev.map((m) =>
-          m.id_mbr === id_mbr ? { ...m, statut: "en cours" } : m
-        )
-      );
-    } catch (err) {
-      console.error("Erreur lancement :", err);
-      alert("Erreur lors du lancement du MBR");
-    }
-  };
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-emerald-950 via-slate-900 to-emerald-900 flex items-center justify-center">
@@ -115,9 +89,9 @@ const NobleMBRList = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-            {mbrs.map((mbr, index) => (
+            {mbrs.map((mbr) => (
               <div
-                key={`${mbr.id_mbr}-${index}`}
+                key={mbr.id_mbr}
                 className="group bg-white/5 backdrop-blur-sm rounded-2xl shadow-2xl border border-emerald-500/20 hover:border-emerald-400/40 transition-all duration-300 hover:transform hover:-translate-y-1 overflow-hidden"
               >
                 {/* Header de la carte */}
@@ -157,6 +131,34 @@ const NobleMBRList = () => {
                     <div className="flex items-center gap-3">
                       <div className="w-2 h-2 bg-emerald-400 rounded-full"></div>
                       <div>
+                        <span className="text-emerald-300 text-sm font-medium">Date debut Fabrication</span>
+                        <p className="text-white font-semibold">
+                          {new Date(mbr.date_debut).toLocaleDateString("fr-FR", {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
+                          })}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                      <div className="w-2 h-2 bg-emerald-400 rounded-full"></div>
+                      <div>
+                        <span className="text-emerald-300 text-sm font-medium">Date Fin Fabrication</span>
+                        <p className="text-white font-semibold">
+                          {new Date(mbr.date_fin).toLocaleDateString("fr-FR", {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
+                          })}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                      <div className="w-2 h-2 bg-emerald-400 rounded-full"></div>
+                      <div>
                         <span className="text-emerald-300 text-sm font-medium">Émetteur</span>
                         <p className="text-white font-semibold">{mbr.nom_uti_emission}</p>
                       </div>
@@ -176,6 +178,27 @@ const NobleMBRList = () => {
                       </div>
                     </div>
                   </div>
+                   <div className="flex items-center gap-3">
+                      <div className="w-2 h-2 bg-emerald-400 rounded-full"></div>
+                      <div>
+                        <span className="text-emerald-300 text-sm font-medium">Lancer Par</span>
+                        <p className="text-white font-semibold">{mbr.nom_uti_lancement}</p>
+                      </div>
+                    </div>
+
+                     <div className="flex items-center gap-3">
+                      <div className="w-2 h-2 bg-emerald-400 rounded-full"></div>
+                      <div>
+                        <span className="text-emerald-300 text-sm font-medium">Date de Lancement</span>
+                        <p className="text-white font-semibold">
+                          {new Date(mbr.date_lance).toLocaleDateString("fr-FR", {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
+                          })}
+                        </p>
+                      </div>
+                    </div>
                 </div>
 
                 {/* Footer avec boutons d'action */}
@@ -183,7 +206,7 @@ const NobleMBRList = () => {
                   <div className="flex flex-col sm:flex-row gap-3">
                     <button
                       onClick={() =>
-                       navigate(`/PROD/detailattente/${mbr.id_mbr}/${code_fab}`)
+                       navigate(`/PROD/detailattente/${mbr.id_mbr}/${code_fab}/${id_camp}`)
                       }
                       className="flex-1 bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 hover:border-white/40 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-200 flex items-center justify-center gap-2 group"
                     >
@@ -191,16 +214,7 @@ const NobleMBRList = () => {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                       </svg>
-                      Détails
-                    </button>
-                    <button
-                      onClick={() => handleLancement(mbr.id_mbr)}
-                      className="flex-1 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white font-bold py-3 px-4 rounded-xl transition-all duration-200 shadow-lg hover:shadow-emerald-500/25 flex items-center justify-center gap-2 group"
-                    >
-                      <svg className="w-4 h-4 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-7 4h12l3 3H3l3-3z" />
-                      </svg>
-                      Lancer
+                      Verifier
                     </button>
                   </div>
                 </div>
@@ -236,4 +250,4 @@ const NobleMBRList = () => {
   );
 };
 
-export default NobleMBRList;
+export default TerminerMBRList;
