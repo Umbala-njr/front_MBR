@@ -3,7 +3,7 @@ import AtelierManager from '../../composant/AQ/Atelier';
 
 const AtelierPage = () => {
   return (
-    <div>
+    <div className='flex flex-col w-full h-full'>
       <AtelierManager />
     </div>
   );

@@ -115,6 +115,9 @@ const TerminerMBRList = () => {
                   <h3 className="text-emerald-300 font-semibold text-lg">
                     {mbr.nom_fab}
                   </h3>
+                  <h3 className="text-emerald-300 font-semibold text-lg">
+                    {mbr.BR}
+                  </h3>
                 </div>
 
                 {/* Corps de la carte */}

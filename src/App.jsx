@@ -65,6 +65,23 @@ import DemandeBrPage from './assets/Pages/PRODpage/demandeBrPage';
 import NotificationPage from './assets/Pages/AQpage/notificationAqPage';
 import DocumentCampPage from './assets/Pages/AQpage/campagne/documentcampPage';
 import ArchivePage from './assets/Pages/AQpage/Archive/archivePage';
+import AtelierEtapePage from './assets/Pages/AQpage/Archive/atelieretapePage';
+import EncourbrAQPage from './assets/composant/AQ/MBRAction/mbrEncours/mbrEncoursPage';
+import NavigationAQBRPage from './assets/Pages/AffichebrAq/detailsEncoursPage';
+import PetiteEtapeAQBRPage from './assets/Pages/AffichebrAq/petiteetapePage';
+import EtapeAQBRPage from './assets/Pages/AffichebrAq/etapePage';
+import MatiereAQBRPage from './assets/Pages/AffichebrAq/matiereAQPage';
+import EchantillonAQBRPage from './assets/Pages/AffichebrAq/echantillonAqPage';
+import OuvrierLayout from './assets/composant/LayoutAQ/ouvrierLayout';
+import CampagneOuvrierPage from './assets/Pages/Ouvrier/campagneOuvrierPage';
+import MbrOuvrierPage from './assets/Pages/Ouvrier/mbrOuvrierPage';
+import DetailsOuvrierPage from './assets/Pages/Ouvrier/detailsOuvrierPage';
+import MatiereOuvrierPage from './assets/Pages/Ouvrier/matiereOuvrierPage';
+import EtapeOuvriePage from './assets/Pages/Ouvrier/etapeOuvrierPage';
+import PetiteEtapeOuvrierPage from './assets/Pages/Ouvrier/petitetapeOuvrierPage';
+import ListeEchantillonsOuvrierPage from './assets/Pages/Ouvrier/ListeEchantillonsOuvrierPage';
+
+
 
 function App() {
   return (
@@ -84,7 +101,7 @@ function App() {
            <Route path="fabrication/:id_pro" element={<FabricationPage />} />
            <Route path="atelier" element={<AtelierManager />} />
            <Route path="etape" element={<EtapePage />} />
-           <Route path="etape1/:code_fab" element={<Etape1Page />} /> 
+           <Route path="etape1/:code_fab/:id_atelier" element={<Etape1Page />} /> 
            <Route path="sousetape/:id_atelier/:id_eta" element={<PetitEPage />} />  
            <Route path="document" element={<DocumentPage />} />
            <Route path="mbr/:code_fab/:id_camp" element={<AtelierBRPage/>} />
@@ -114,6 +131,16 @@ function App() {
             <Route path="documentCamp/:code_fab/:id_camp" element={<DocumentCampPage />} />
 
             <Route path="archive" element={<ArchivePage />} />
+            <Route path="atelieretape/:code_fab" element={<AtelierEtapePage />} />
+
+            <Route path="encoursAQ/:code_fab/:id_camp" element={<EncourbrAQPage />} />
+            <Route path="detailencoursAQ/:id_mbr/:code_fab/:id_camp" element={<NavigationAQBRPage />} />
+            <Route path="etapeAQ/:id_mbr/:code_fab" element={<EtapeAQBRPage />} />
+            <Route path="petiteetapeAQ/:id_mbr/:id_eta" element={<PetiteEtapeAQBRPage />} />
+            <Route path="matiereAQ/:id_mbr/:code_fab" element={<MatiereAQBRPage />} />
+            <Route path="echantillonAQ/:id_mbr/:code_fab" element={<EchantillonAQBRPage />} />
+
+
           {/* ajoute d'autres sous-routes ici */}
         </Route>
         
@@ -126,7 +153,7 @@ function App() {
         <Route path="mbr/:code_fab/:id_camp" element={<MBRProdPage />} />
         <Route path="produit" element={<ProduitprodPage />} />
         <Route path="attente/:code_fab/:id_camp" element={<AttenteBRPage />} />
-        <Route path="detailattente/:id_mbr/:code_fab" element={<DetailattentePage />} />
+        <Route path="detailattente/:id_mbr/:code_fab/:id_camp" element={<DetailattentePage />} />
         <Route path="echantillonaffiche/:id_mbr/:code_fab" element={<EchantillonaffichePage />} />
         <Route path="matiereaffiche/:id_mbr/:code_fab" element={<MatiereaffichePage />} />
         <Route path="tableaumatiere/:id_mbr/:id_mat" element={<TableaumatierePage />} />
@@ -134,13 +161,13 @@ function App() {
         <Route path="petitetapeaffiche/:id_mbr/:id_eta" element={<PetitetapeBrPage />} />
         <Route path="valeuretapebr/:id_mbr/:id_eta/:id_peta" element={<ValeuretapeBrPage />} />
         <Route path="encours/:code_fab/:id_camp" element={<EncoursBRPage />} />
-        <Route path="detailencours/:id_mbr/:code_fab" element={<DetailencoursPage />} />
+        <Route path="detailencours/:id_mbr/:code_fab/:id_camp" element={<DetailencoursPage />} />
 
         <Route path="matiereaction/:id_mbr/:code_fab" element={<MatiereactionPage />} />
         <Route path="tableaumatiereaction/:id_mbr/:id_mat" element={<TableaumatiereactionPage />} />
         <Route path="echantillonaction/:id_mbr/:code_fab" element={<EchantillonactionPage />} />
         <Route path="etapeaction/:id_mbr/:code_fab" element={<EtapebymbractionPage />} />
-        <Route path="petiteetapeaction/:id_mbr/:id_eta" element={<PetitetapembrActionPage />} />
+        <Route path="petiteetapeaction/:id_mbr/:id_eta/:code_fab" element={<PetitetapembrActionPage />} />
         <Route path="valeuretapeaction/:id_mbr/:id_eta/:id_peta" element={<ValeuretapeactionBrPage/>} />
         <Route path="listedocument/:id_mbr" element={<ListedocumentPage />} />
         <Route path="campagne/:code_fab" element={<CampagnePage />} />
@@ -151,9 +178,23 @@ function App() {
             {/* ajoute d'autres sous-routes ici */}
         </Route>
 
+          {/* Routes protégées pour OPROD */}
+        <Route path="/OPROD" element={<ProtectedRoute><OuvrierLayout /> </ProtectedRoute> }>
+            <Route path="campagneOuvrier" element={<CampagneOuvrierPage />} />
+            <Route path="mbrOuvrier/:code_fab/:id_camp" element={<MbrOuvrierPage />} />
+            <Route path="detailsOuvrier/:id_mbr/:code_fab/:id_camp" element={<DetailsOuvrierPage />} />
+            <Route path="matiereOuvrier/:id_mbr/:code_fab" element={<MatiereOuvrierPage />} />
+            <Route path="etapeOuvrier/:id_mbr/:code_fab" element={<EtapeOuvriePage />} />
+            <Route path="petiteetapeOuvrier/:id_mbr/:id_eta/:code_fab" element={<PetiteEtapeOuvrierPage />} />
+            <Route path="listeEchantillonsOuvrier/:id_mbr/:code_fab" element={<ListeEchantillonsOuvrierPage />} />
+            {/* autres sous-routes ici */}
+       
+        </Route>
+
         {/* Catch all */}
         <Route path="*" element={<Login />} />
       </Routes>
+
     </Router>
   );
 }

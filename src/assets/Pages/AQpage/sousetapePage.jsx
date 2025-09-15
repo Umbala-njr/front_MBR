@@ -3,7 +3,7 @@ import SousEtapeByEtape from '../../composant/AQ/sousEtape';
 
 const SousetapePage = () => {
   return (
-    <div>
+    <div className='flex flex-col w-full h-full'>
       <SousEtapeByEtape />
     </div>
   );

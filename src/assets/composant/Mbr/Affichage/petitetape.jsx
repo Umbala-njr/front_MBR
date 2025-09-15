@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 
-const PetiteEtapeWithTable = () => {
-  const { id_mbr, id_eta } = useParams();
+const  PetiteEtapeWithTable = () => {
+  const { id_mbr, id_eta, code_fab } = useParams();
+  const navigate = useNavigate();
   const [petitesEtapes, setPetitesEtapes] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [activeTable, setActiveTable] = useState(null); // Pour suivre quelle petite étape est ouverte
-  const [tableData, setTableData] = useState({}); // Pour stocker les données des tableaux
+  const [activeTable, setActiveTable] = useState(null);
+  const [tableData, setTableData] = useState({});
 
   // Charger les petites étapes
   useEffect(() => {
@@ -27,23 +28,20 @@ const PetiteEtapeWithTable = () => {
     fetchPetitesEtapes();
   }, [id_eta]);
 
-  // Fonction pour charger les données d'un tableau
+  // Charger les données du tableau
   const loadTableData = async (id_peta) => {
-    // Si les données sont déjà chargées, on les affiche simplement
     if (tableData[id_peta]) {
       setActiveTable(activeTable === id_peta ? null : id_peta);
       return;
     }
 
     try {
-      // Charger toutes les données en parallèle
       const [colonnesRes, sousEtapesRes, valeursRes] = await Promise.all([
         axios.get(`http://localhost:3000/api/colonne/listecolonne/${id_peta}`),
         axios.get(`http://localhost:3000/api/sous_etape/sous_etape/${id_eta}/${id_peta}`),
         axios.get(`http://localhost:3000/api/valeuretape/valeurs/${id_mbr}`)
       ]);
 
-      // Stocker les données dans l'état
       setTableData(prev => ({
         ...prev,
         [id_peta]: {
@@ -53,10 +51,9 @@ const PetiteEtapeWithTable = () => {
         }
       }));
 
-      // Afficher le tableau
       setActiveTable(id_peta);
     } catch (err) {
-      console.error("Erreur lors du chargement des données du tableau:", err);
+      console.error("Erreur lors du chargement du tableau:", err);
     }
   };
 
@@ -65,6 +62,11 @@ const PetiteEtapeWithTable = () => {
     if (!valeurs) return "";
     const val = valeurs.find(v => v.id_sous === id_sous && v.id_col === id_col);
     return val ? val.valeur : "";
+  };
+
+  // Navigation vers page échantillon
+  const handleEchantillonClick = () => {
+    navigate(`/PROD/echantillonaction/${id_mbr}/${code_fab}`);
   };
 
   if (loading) {
@@ -99,7 +101,7 @@ const PetiteEtapeWithTable = () => {
               </button>
             </div>
             
-            {/* Tableau des valeurs (affiché conditionnellement) */}
+            {/* Tableau d'affichage des valeurs */}
             {activeTable === peta.id_peta && tableData[peta.id_peta] && (
               <div className="p-4 bg-gray-50">
                 <h4 className="text-md font-semibold mb-3 text-gray-700">Tableau des valeurs</h4>
@@ -129,14 +131,24 @@ const PetiteEtapeWithTable = () => {
                           <td className="border px-4 py-2">{sous.criticite}</td>
                           <td className="border px-4 py-2">{sous.valeur_std}</td>
                           {tableData[peta.id_peta].colonnes.map(col => (
-                            <td key={col.id_col} className="border px-4 py-2 text-center">
-                              {getValeur(tableData[peta.id_peta].valeurs, sous.id_sous, col.id_col)}
+                            <td key={col.id_col} className="border px-2 py-2 text-center">
+                              {getValeur(tableData[peta.id_peta].valeurs, sous.id_sous, col.id_col) || "-"}
                             </td>
                           ))}
                         </tr>
                       ))}
                     </tbody>
                   </table>
+                </div>
+
+                {/* Bouton Échantillon */}
+                <div className="mt-4 flex justify-end">
+                  <button
+                    onClick={handleEchantillonClick}
+                    className="px-4 py-2 bg-purple-600 text-white rounded-lg shadow hover:bg-purple-700 transition"
+                  >
+                    Échantillon
+                  </button>
                 </div>
               </div>
             )}
@@ -147,4 +159,4 @@ const PetiteEtapeWithTable = () => {
   );
 };
 
-export default PetiteEtapeWithTable;
+export default  PetiteEtapeWithTable;

@@ -1,9 +1,8 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import axios from 'axios';
 
 const HistoriqueConnexions = () => {
   const [historiques, setHistoriques] = useState([]);
-  const [filteredHistoriques, setFilteredHistoriques] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -21,17 +20,31 @@ const HistoriqueConnexions = () => {
 
   const fetchHistoriques = useCallback(async () => {
     setLoading(true);
+    setError(null);
     try {
       const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('Token d\'authentification manquant');
+      }
+      
       const response = await axios.get(`${BASE_URL}/api/utilisateur/historique`, {
         headers: { Authorization: `Bearer ${token}` },
+        timeout: 10000 // Timeout après 10 secondes
       });
-      setHistoriques(response.data);
-      setFilteredHistoriques(response.data);
-      setError(null);
+      
+      // Filtrer immédiatement pour ne garder que le rôle AQ
+      const filteredData = response.data.filter(item => item.role === "AQ");
+      setHistoriques(filteredData);
     } catch (error) {
-      setError("Échec du chargement de l'historique des connexions.");
       console.error('Error fetching connections:', error);
+      
+      if (error.response?.status === 401) {
+        setError("Session expirée. Veuillez vous reconnecter.");
+      } else if (error.code === 'ECONNABORTED') {
+        setError("La requête a pris trop de temps. Veuillez réessayer.");
+      } else {
+        setError("Échec du chargement de l'historique des connexions.");
+      }
     } finally {
       setLoading(false);
     }
@@ -41,29 +54,21 @@ const HistoriqueConnexions = () => {
     fetchHistoriques();
   }, [fetchHistoriques]);
 
-  // Filtrage dynamique
-  useEffect(() => {
-     const filtered = historiques
-    .filter((item) =>
-      item.role === "AQ" // 👈 Ne garder que le rôle AQ
-    )
-    .filter((item) =>
-      item.nom_uti.toLowerCase().includes(searchNom.toLowerCase())
-    )
-    .filter((item) =>
-      searchAction ? item.type_action.toLowerCase().includes(searchAction.toLowerCase()) : true
-    );
-    // Filtrer par date
-    if (dateDebut) {
-      filtered = filtered.filter(item => new Date(item.date_action) >= new Date(dateDebut));
-    }
-    if (dateFin) {
-      filtered = filtered.filter(item => new Date(item.date_action) <= new Date(dateFin));
-    }
-
-    setFilteredHistoriques(filtered);
-    setCurrentPage(1);
-  }, [searchNom, searchAction, dateDebut, dateFin, historiques]);
+  // Utilisation de useMemo pour optimiser le filtrage
+  const filteredHistoriques = useMemo(() => {
+    return historiques.filter((item) => {
+      const matchesNom = item.nom_uti?.toLowerCase().includes(searchNom.toLowerCase()) || false;
+      const matchesAction = searchAction 
+        ? item.type_action?.toLowerCase().includes(searchAction.toLowerCase()) || false
+        : true;
+      
+      const itemDate = new Date(item.date_action);
+      const matchesDateDebut = dateDebut ? itemDate >= new Date(dateDebut) : true;
+      const matchesDateFin = dateFin ? itemDate <= new Date(dateFin + 'T23:59:59') : true; // Inclure toute la journée de fin
+      
+      return matchesNom && matchesAction && matchesDateDebut && matchesDateFin;
+    });
+  }, [historiques, searchNom, searchAction, dateDebut, dateFin]);
 
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleString('fr-FR', {
@@ -76,15 +81,49 @@ const HistoriqueConnexions = () => {
     });
   };
 
-  // Pagination
-  const totalPages = Math.ceil(filteredHistoriques.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const currentItems = filteredHistoriques.slice(startIndex, endIndex);
+  // Pagination - utilisation de useMemo pour optimiser
+  const { totalPages, currentItems, startIndex, endIndex } = useMemo(() => {
+    const totalPages = Math.ceil(filteredHistoriques.length / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const currentItems = filteredHistoriques.slice(startIndex, endIndex);
+    
+    return { totalPages, currentItems, startIndex, endIndex };
+  }, [filteredHistoriques, currentPage, itemsPerPage]);
 
   const goToPage = (pageNumber) => setCurrentPage(pageNumber);
   const goToPrevious = () => setCurrentPage(prev => Math.max(prev - 1, 1));
   const goToNext = () => setCurrentPage(prev => Math.min(prev + 1, totalPages));
+
+  // Génération des boutons de pagination avec limite d'affichage
+  const paginationButtons = useMemo(() => {
+    const buttons = [];
+    const maxVisibleButtons = 5;
+    let startPage = Math.max(1, currentPage - Math.floor(maxVisibleButtons / 2));
+    let endPage = Math.min(totalPages, startPage + maxVisibleButtons - 1);
+    
+    if (endPage - startPage + 1 < maxVisibleButtons) {
+      startPage = Math.max(1, endPage - maxVisibleButtons + 1);
+    }
+    
+    for (let i = startPage; i <= endPage; i++) {
+      buttons.push(
+        <button
+          key={i}
+          onClick={() => goToPage(i)}
+          className={`px-3 py-2 text-sm font-medium rounded-lg ${
+            currentPage === i 
+              ? 'bg-green-700 text-white' 
+              : 'bg-white text-green-600 border border-green-300'
+          }`}
+        >
+          {i}
+        </button>
+      );
+    }
+    
+    return buttons;
+  }, [currentPage, totalPages]);
 
   // Loading
   if (loading) {
@@ -120,7 +159,7 @@ const HistoriqueConnexions = () => {
 
   return (
     <div className="min-h-screen bg-white">
-      <div className="container mx-auto max-w-7xl px-6 py-8">
+      <div className="container mx-auto max-w-7xl px-4 sm:px-6 py-8">
 
         {/* En-tête */}
         <div className="bg-white rounded-xl shadow-lg p-6 mb-8 border-l-4 border-green-700">
@@ -129,7 +168,7 @@ const HistoriqueConnexions = () => {
               <h1 className="text-2xl font-bold text-green-800">Historique</h1>
               <p className="text-green-600">Toutes les actions effectuées par les utilisateurs</p>
             </div>
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-4 mt-4 sm:mt-0">
               <div className="bg-green-100 px-4 py-2 rounded-lg">
                 <span className="text-green-800 font-semibold">
                   {filteredHistoriques.length} enregistrements
@@ -137,10 +176,13 @@ const HistoriqueConnexions = () => {
               </div>
               <button
                 onClick={fetchHistoriques}
-                className="p-2 bg-green-700 text-white rounded-lg hover:bg-green-800 transition-colors"
+                className="p-3 bg-green-700 text-white rounded-lg hover:bg-green-800 transition-colors flex items-center justify-center"
                 title="Actualiser"
+                aria-label="Actualiser"
               >
-                🔄
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
               </button>
             </div>
           </div>
@@ -157,7 +199,7 @@ const HistoriqueConnexions = () => {
                 placeholder="Nom d'utilisateur..."
                 value={searchNom}
                 onChange={(e) => setSearchNom(e.target.value)}
-                className="w-full p-3 border border-green-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                className="w-full p-3 border border-green-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
               />
             </div>
 
@@ -168,7 +210,7 @@ const HistoriqueConnexions = () => {
                 placeholder="Ex: login, ajout..."
                 value={searchAction}
                 onChange={(e) => setSearchAction(e.target.value)}
-                className="w-full p-3 border border-green-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                className="w-full p-3 border border-green-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
               />
             </div>
 
@@ -178,7 +220,7 @@ const HistoriqueConnexions = () => {
                 type="date"
                 value={dateDebut}
                 onChange={(e) => setDateDebut(e.target.value)}
-                className="w-full p-3 border border-green-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                className="w-full p-3 border border-green-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
               />
             </div>
 
@@ -188,10 +230,27 @@ const HistoriqueConnexions = () => {
                 type="date"
                 value={dateFin}
                 onChange={(e) => setDateFin(e.target.value)}
-                className="w-full p-3 border border-green-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                className="w-full p-3 border border-green-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
               />
             </div>
           </div>
+          
+          {/* Boutons pour réinitialiser les filtres */}
+          {(searchNom || searchAction || dateDebut || dateFin) && (
+            <div className="mt-4">
+              <button
+                onClick={() => {
+                  setSearchNom('');
+                  setSearchAction('');
+                  setDateDebut('');
+                  setDateFin('');
+                }}
+                className="px-4 py-2 text-sm font-medium text-green-700 bg-green-100 rounded-lg hover:bg-green-200 transition-colors"
+              >
+                Réinitialiser les filtres
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Tableau */}
@@ -200,33 +259,36 @@ const HistoriqueConnexions = () => {
             <table className="min-w-full">
               <thead className="bg-green-700">
                 <tr>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-white">Utilisateur</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-white">Rôle</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-white">Action</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-white">Date & Heure</th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-white">Utilisateur</th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-white">Rôle</th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-white">Action</th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-white">Date & Heure</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-green-100">
                 {currentItems.length > 0 ? (
                   currentItems.map((item, index) => (
-                    <tr key={index} className="hover:bg-green-50">
-                      <td className="px-6 py-4">
+                    <tr key={`${item.id || index}-${item.date_action}`} className="hover:bg-green-50">
+                      <td className="px-4 py-3">
                         <div className="flex items-center space-x-3">
                           <img
                             src={`${BASE_URL}/uploads/photos/${item.photo}`}
                             alt={item.nom_uti}
                             className="w-10 h-10 rounded-full border border-green-200 object-cover"
-                            onError={(e) => (e.target.src = 'https://via.placeholder.com/40/10B981/ffffff?text=U')}
+                            onError={(e) => {
+                              e.target.src = 'https://via.placeholder.com/40/10B981/ffffff?text=U';
+                              e.target.onerror = null; // Éviter les boucles d'erreur
+                            }}
                           />
                           <span className="font-medium text-green-900">{item.nom_uti}</span>
                         </div>
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="px-4 py-3">
                         <span className="px-3 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
                           {item.role}
                         </span>
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="px-4 py-3">
                         <span
                           className={`px-3 py-1 text-xs font-semibold rounded-full ${
                             item.type_action === 'login'
@@ -239,7 +301,7 @@ const HistoriqueConnexions = () => {
                           {item.type_action}
                         </span>
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-600">
+                      <td className="px-4 py-3 text-sm text-gray-600">
                         {formatDate(item.date_action)}
                       </td>
                     </tr>
@@ -257,33 +319,23 @@ const HistoriqueConnexions = () => {
 
           {/* Pagination */}
           {filteredHistoriques.length > itemsPerPage && (
-            <div className="bg-green-50 px-6 py-4 border-t border-green-100 flex justify-between items-center">
+            <div className="bg-green-50 px-4 py-3 border-t border-green-100 flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
               <p className="text-sm text-green-700">
                 Affichage {startIndex + 1} à {Math.min(endIndex, filteredHistoriques.length)} sur {filteredHistoriques.length}
               </p>
-              <div className="flex items-center space-x-2">
+              <div className="flex flex-wrap items-center justify-center gap-2">
                 <button
                   onClick={goToPrevious}
                   disabled={currentPage === 1}
-                  className="px-3 py-2 text-sm font-medium text-green-600 bg-white border border-green-300 rounded-lg disabled:opacity-50"
+                  className="px-3 py-2 text-sm font-medium text-green-600 bg-white border border-green-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Précédent
                 </button>
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNumber) => (
-                  <button
-                    key={pageNumber}
-                    onClick={() => goToPage(pageNumber)}
-                    className={`px-3 py-2 text-sm font-medium rounded-lg ${
-                      currentPage === pageNumber ? 'bg-green-700 text-white' : 'bg-white text-green-600 border border-green-300'
-                    }`}
-                  >
-                    {pageNumber}
-                  </button>
-                ))}
+                {paginationButtons}
                 <button
                   onClick={goToNext}
                   disabled={currentPage === totalPages}
-                  className="px-3 py-2 text-sm font-medium text-green-600 bg-white border border-green-300 rounded-lg disabled:opacity-50"
+                  className="px-3 py-2 text-sm font-medium text-green-600 bg-white border border-green-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Suivant
                 </button>

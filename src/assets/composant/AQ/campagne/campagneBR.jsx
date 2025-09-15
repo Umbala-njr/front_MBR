@@ -24,7 +24,7 @@ const fetchCampagnes = async () => {
 
   // Redirection vers création MBR
   const handleCreerMBR = (code_fab, id_camp) => {
-    navigate(`/AQ/mbrEncours/${code_fab}/${id_camp}`);
+    navigate(`/AQ/encoursAQ/${code_fab}/${id_camp}`);
   };
 
   return (

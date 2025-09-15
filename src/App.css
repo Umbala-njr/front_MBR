@@ -73,3 +73,86 @@
   background-color: #f0f9ff;
   transition: background 0.3s ease;
 }
+
+/* Styles pour l'éditeur de texte riche */
+[contenteditable]:empty:before {
+  content: attr(data-placeholder);
+  color: #9CA3AF;
+  font-style: italic;
+}
+
+[contenteditable]:focus:before {
+  content: "";
+}
+
+/* Animation personnalisée pour le message de succès */
+@keyframes bounce {
+  0%, 20%, 53%, 80%, 100% {
+    animation-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
+    transform: translate3d(0, 0, 0);
+  }
+  40%, 43% {
+    animation-timing-function: cubic-bezier(0.755, 0.05, 0.855, 0.06);
+    transform: translate3d(0, -30px, 0);
+  }
+  70% {
+    animation-timing-function: cubic-bezier(0.755, 0.05, 0.855, 0.06);
+    transform: translate3d(0, -15px, 0);
+  }
+  90% {
+    transform: translate3d(0, -4px, 0);
+  }
+}
+
+.animate-bounce {
+  animation: bounce 1s;
+}
+
+/* Styles pour la barre d'outils de l'éditeur */
+.editor-toolbar button:hover {
+  transform: translateY(-1px);
+}
+
+/* Styles pour les éléments du contenu éditable */
+[contenteditable] strong {
+  font-weight: bold;
+}
+
+[contenteditable] em {
+  font-style: italic;
+}
+
+[contenteditable] u {
+  text-decoration: underline;
+}
+
+[contenteditable] ul {
+  list-style-type: disc;
+  margin-left: 20px;
+  padding-left: 10px;
+}
+
+[contenteditable] ol {
+  list-style-type: decimal;
+  margin-left: 20px;
+  padding-left: 10px;
+}
+
+[contenteditable] li {
+  margin: 5px 0;
+}
+
+/* Responsive design pour l'éditeur */
+@media (max-width: 768px) {
+  .editor-toolbar {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  
+  .editor-toolbar > div {
+    border-right: none;
+    padding-right: 0;
+    margin-right: 0;
+    margin-bottom: 8px;
+  }
+}

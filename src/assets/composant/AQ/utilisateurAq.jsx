@@ -127,6 +127,8 @@ const UtilisateurManager = () => {
         { text: 'Admin', value: 'admin' },
         { text: 'AQ', value: 'AQ' },
         { text: 'Cadre Production', value: 'production' },
+        { text: 'Superviseur Production', value: 'production' },
+        { text: 'Chef d\'Equipe', value: 'Operateur' },
         { text: 'Direction', value: 'direction' },
         { text: 'Opérateur', value: 'operateur' },
       ],
@@ -294,7 +296,9 @@ const UtilisateurManager = () => {
                   <Option value="AQ">AQ</Option>
                   <Option value="production">Cadre Production</Option>
                   <Option value="direction">Direction</Option>
+                  <Option value="production">Superviseur Production</Option>
                   <Option value="operateur">Opérateur</Option>
+                  <Option value="CE">Chef d\'Equipe</Option>
                 </Select>
               </Form.Item>
             </Col>

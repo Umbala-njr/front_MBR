@@ -73,8 +73,14 @@ const Login = () => {
       case 'aq':
         navigate('/AQ/home');
         break;
-      case 'operateur':
+      case 'production':
         navigate('/PROD/home');
+        break;
+        case 'operateur':
+        navigate('/OPROD/campagneOuvrier');
+        break;
+        case 'ce':
+        navigate('/OPROD/campagneOuvrier');
         break;
       default:
         navigate('/assurence');

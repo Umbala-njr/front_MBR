@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 
 const PetiteEtapeActionWithTable = () => {
-  const { id_mbr, id_eta } = useParams();
+  const { id_mbr, id_eta, code_fab } = useParams();
+  const navigate = useNavigate();
   const [petitesEtapes, setPetitesEtapes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTable, setActiveTable] = useState(null);
@@ -28,9 +29,66 @@ const PetiteEtapeActionWithTable = () => {
     fetchPetitesEtapes();
   }, [id_eta]);
 
+  // Charger les vérifications déjà faites
+  useEffect(() => {
+    const fetchVerifications = async () => {
+      try {
+        const res = await axios.get(
+          `http://localhost:3000/api/verificationEtape/afficheVerification/${id_mbr}`
+        );
+        const verifMap = {};
+        res.data.forEach((v) => {
+          verifMap[v.id_peta] = {
+            verified: true,
+            verifiedBy: v.nom_uti,
+            verifiedAt: v.date_verification,
+          };
+        });
+        setTableData((prev) => {
+          const updated = { ...prev };
+          for (let id_peta in verifMap) {
+            updated[id_peta] = {
+              ...(updated[id_peta] || {}),
+              ...verifMap[id_peta],
+            };
+          }
+          return updated;
+        });
+      } catch (err) {
+        console.error("Erreur lors du chargement des vérifications:", err);
+      }
+    };
+    fetchVerifications();
+  }, [id_mbr]);
+
+  // Vérification d'une petite étape
+  const handleVerification = async (id_peta) => {
+    try {
+      const user = JSON.parse(localStorage.getItem("user"));
+      if (!user) return alert("Utilisateur non connecté");
+
+      await axios.post(
+        `http://localhost:3000/api/verificationEtape/verifier/${id_peta}/${id_mbr}`,
+        { id_uti: user.id_uti }
+      );
+
+      setTableData((prev) => ({
+        ...prev,
+        [id_peta]: {
+          ...(prev[id_peta] || {}),
+          verified: true,
+          verifiedBy: user.nom_uti,
+          verifiedAt: new Date().toISOString(),
+        },
+      }));
+    } catch (err) {
+      console.error("Erreur lors de la vérification:", err.response?.data || err.message);
+    }
+  };
+
   // Fonction pour charger les données d'un tableau
   const loadTableData = async (id_peta) => {
-    if (tableData[id_peta]) {
+    if (tableData[id_peta]?.colonnes) {
       setActiveTable(activeTable === id_peta ? null : id_peta);
       return;
     }
@@ -45,6 +103,7 @@ const PetiteEtapeActionWithTable = () => {
       setTableData(prev => ({
         ...prev,
         [id_peta]: {
+          ...(prev[id_peta] || {}),
           colonnes: colonnesRes.data,
           sousEtapes: sousEtapesRes.data,
           valeurs: valeursRes.data
@@ -59,6 +118,11 @@ const PetiteEtapeActionWithTable = () => {
 
   // Fonction pour gérer les changements de valeur
   const handleChange = async (id_peta, id_sous, id_col, value, type_input) => {
+    // Bloquer la modification si la petite étape est vérifiée
+    if (tableData[id_peta]?.verified) {
+      return;
+    }
+
     try {
       if (!id_mbr || !id_sous || !id_col) return;
 
@@ -84,14 +148,14 @@ const PetiteEtapeActionWithTable = () => {
       // Mise à jour locale
       setTableData(prev => {
         const updatedValeurs = [
-          ...prev[id_peta].valeurs.filter(v => !(v.id_sous === id_sous && v.id_col === id_col)),
+          ...(prev[id_peta]?.valeurs || []).filter(v => !(v.id_sous === id_sous && v.id_col === id_col)),
           { id_sous, id_col, valeur: valToSend }
         ];
 
         return {
           ...prev,
           [id_peta]: {
-            ...prev[id_peta],
+            ...(prev[id_peta] || {}),
             valeurs: updatedValeurs
           }
         };
@@ -116,6 +180,12 @@ const PetiteEtapeActionWithTable = () => {
     }
   };
 
+  // Fonction pour naviguer vers la page d'échantillon
+  const handleEchantillonClick = () => {
+    // Navigation vers la page d'échantillon avec les paramètres nécessaires
+    navigate(`/PROD/echantillonaction/${id_mbr}/${code_fab}`);
+  };
+
   // Fonction utilitaire pour récupérer une valeur
   const getValeur = (valeurs, id_sous, id_col) => {
     if (!valeurs) return "";
@@ -125,6 +195,11 @@ const PetiteEtapeActionWithTable = () => {
 
   // Fonction pour gérer le focus sur un champ time
   const handleTimeFocus = (id_peta, id_sous, id_col, type_input, currentValue) => {
+    // Bloquer si vérifié
+    if (tableData[id_peta]?.verified) {
+      return;
+    }
+    
     if (type_input === "time" && !currentValue) {
       handleChange(id_peta, id_sous, id_col, "", type_input);
     }
@@ -135,6 +210,10 @@ const PetiteEtapeActionWithTable = () => {
     const valeurs = tableData[id_peta]?.valeurs || [];
     let value = getValeur(valeurs, sous.id_sous, col.id_col);
     const isSaved = savedValeurs[`${sous.id_sous}_${col.id_col}`] || !!value;
+    const isVerified = tableData[id_peta]?.verified;
+
+    const isDateOrTime = sous.type_input === "date" || sous.type_input === "time";
+    const isDisabled = isVerified || (isDateOrTime && !!value);
 
     switch (sous.type_input) {
       case "date":
@@ -144,7 +223,7 @@ const PetiteEtapeActionWithTable = () => {
             value={value || ""}
             onChange={e => handleChange(id_peta, sous.id_sous, col.id_col, e.target.value, sous.type_input)}
             onFocus={() => {
-              if (!value) {
+              if (!value && !isVerified) {
                 const now = new Date();
                 const year = now.getFullYear();
                 const month = String(now.getMonth() + 1).padStart(2, '0');
@@ -152,8 +231,8 @@ const PetiteEtapeActionWithTable = () => {
                 handleChange(id_peta, sous.id_sous, col.id_col, `${year}-${month}-${day}`, sous.type_input);
               }
             }}
-            className={`w-full text-center border px-1 py-1 ${isSaved ? 'bg-gray-200' : ''}`}
-            disabled={isSaved}
+            className={`w-full text-center border px-1 py-1 ${isDisabled ? 'bg-gray-200 cursor-not-allowed' : ''}`}
+            disabled={isDisabled}
           />
         );
 
@@ -164,8 +243,8 @@ const PetiteEtapeActionWithTable = () => {
             value={value || ""}
             onChange={e => handleChange(id_peta, sous.id_sous, col.id_col, e.target.value, sous.type_input)}
             onFocus={() => handleTimeFocus(id_peta, sous.id_sous, col.id_col, sous.type_input, value)}
-            className={`w-full text-center border px-1 py-1 ${isSaved ? 'bg-gray-200' : ''}`}
-            disabled={isSaved}
+            className={`w-full text-center border px-1 py-1 ${isDisabled ? 'bg-gray-200 cursor-not-allowed' : ''}`}
+            disabled={isDisabled}
           />
         );
 
@@ -177,7 +256,8 @@ const PetiteEtapeActionWithTable = () => {
             type={sous.type_input}
             value={value || ""}
             onChange={e => handleChange(id_peta, sous.id_sous, col.id_col, e.target.value, sous.type_input)}
-            className="w-full text-center border px-1 py-1"
+            className={`w-full text-center border px-1 py-1 ${isVerified ? 'bg-gray-200 cursor-not-allowed' : ''}`}
+            disabled={isVerified}
           />
         );
 
@@ -186,8 +266,9 @@ const PetiteEtapeActionWithTable = () => {
           <textarea
             value={value || ""}
             onChange={e => handleChange(id_peta, sous.id_sous, col.id_col, e.target.value, sous.type_input)}
-            className="w-full text-center border px-1 py-1"
+            className={`w-full text-center border px-1 py-1 ${isVerified ? 'bg-gray-200 cursor-not-allowed' : ''}`}
             rows="2"
+            disabled={isVerified}
           />
         );
 
@@ -198,6 +279,7 @@ const PetiteEtapeActionWithTable = () => {
             checked={value === "true"}
             onChange={e => handleChange(id_peta, sous.id_sous, col.id_col, String(e.target.checked), sous.type_input)}
             className="mx-auto"
+            disabled={isVerified}
           />
         );
 
@@ -207,7 +289,8 @@ const PetiteEtapeActionWithTable = () => {
             type="text"
             value={value || ""}
             onChange={e => handleChange(id_peta, sous.id_sous, col.id_col, e.target.value, sous.type_input)}
-            className="w-full text-center border px-1 py-1"
+            className={`w-full text-center border px-1 py-1 ${isVerified ? 'bg-gray-200 cursor-not-allowed' : ''}`}
+            disabled={isVerified}
           />
         );
     }
@@ -229,26 +312,71 @@ const PetiteEtapeActionWithTable = () => {
         petitesEtapes.map((peta, index) => (
           <div key={peta.id_peta} className="bg-white rounded-xl shadow-md overflow-hidden">
             {/* En-tête de la petite étape */}
-            <div className="p-4 border-b border-gray-200 flex items-center justify-between">
+            <div className="p-4 border-b border-gray-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div className="flex items-center space-x-3">
                 <span className="bg-green-600 text-white w-8 h-8 flex items-center justify-center rounded-full text-sm font-bold">
                   {index + 1}
                 </span>
-                <h3 className="text-lg font-semibold text-gray-800">{peta.nom_peta}</h3>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-800">{peta.nom_peta}</h3>
+                  
+                  {/* Affichage de l'information de vérification */}
+                  {tableData[peta.id_peta]?.verified && (
+                    <div className="mt-1 text-xs text-blue-600">
+                      Vérifié par {tableData[peta.id_peta]?.verifiedBy} le{" "}
+                      {new Date(tableData[peta.id_peta]?.verifiedAt).toLocaleString()}
+                    </div>
+                  )}
+                </div>
               </div>
               
-              <button
-                onClick={() => loadTableData(peta.id_peta)}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition"
-              >
-                {activeTable === peta.id_peta ? "Masquer le tableau" : "Voir/Éditer tableau"}
-              </button>
+              <div className="flex flex-col sm:flex-row gap-2">
+                {/* Bouton Vérifier */}
+                <button
+                  onClick={() => handleVerification(peta.id_peta)}
+                  disabled={tableData[peta.id_peta]?.verified}
+                  className={`px-4 py-2 rounded-lg shadow transition flex items-center gap-2 ${
+                    tableData[peta.id_peta]?.verified
+                      ? "bg-gray-400 text-gray-700 cursor-not-allowed"
+                      : "bg-blue-600 hover:bg-blue-500 text-white"
+                  }`}
+                >
+                  {tableData[peta.id_peta]?.verified
+                    ? "Vérifié ✅"
+                    : "Vérifier"}
+                </button>
+
+                {/* Bouton Voir tableau */}
+                <button
+                  onClick={() => loadTableData(peta.id_peta)}
+                  className="px-4 py-2 bg-green-600 text-white rounded-lg shadow hover:bg-green-700 transition flex items-center gap-2"
+                >
+                  {activeTable === peta.id_peta ? "Masquer le tableau" : "Voir/Éditer tableau"}
+                </button>
+              </div>
             </div>
             
             {/* Tableau des valeurs (affiché conditionnellement) */}
             {activeTable === peta.id_peta && tableData[peta.id_peta] && (
               <div className="p-4 bg-gray-50">
-                <h4 className="text-md font-semibold mb-3 text-gray-700">Tableau des valeurs - Édition</h4>
+                <div className="mb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                  <h4 className="text-md font-semibold text-gray-700">
+                    Tableau des valeurs - Édition
+                    {tableData[peta.id_peta]?.verified && (
+                      <span className="ml-2 text-sm text-blue-600">
+                        (Lecture seule - Vérifié)
+                      </span>
+                    )}
+                  </h4>
+                  
+                  {/* Bouton Échantillon */}
+                  <button
+                    onClick={() => handleEchantillonClick()}
+                    className="px-4 py-2 bg-purple-600 text-white rounded-lg shadow hover:bg-purple-700 transition"
+                  >
+                    Échantillon
+                  </button>
+                </div>
                 
                 <div className="overflow-x-auto">
                   <table className="min-w-full border border-gray-300 bg-white">
@@ -296,6 +424,11 @@ const PetiteEtapeActionWithTable = () => {
                   <p className="text-xs">
                     • Les champs date se remplissent automatiquement avec la date du jour au focus
                   </p>
+                  {tableData[peta.id_peta]?.verified && (
+                    <p className="mt-2 text-blue-600 text-xs">
+                      • Cette étape est vérifiée - Saisie désactivée
+                    </p>
+                  )}
                 </div>
               </div>
             )}

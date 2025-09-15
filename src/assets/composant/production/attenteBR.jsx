@@ -141,6 +141,9 @@ const NobleMBRList = () => {
                   <h3 className="text-emerald-300 font-semibold text-lg">
                     {mbr.nom_fab}
                   </h3>
+                  <h3 className="text-emerald-300 font-semibold text-lg">
+                    {mbr.BR}
+                  </h3>
                 </div>
 
                 {/* Corps de la carte */}
@@ -183,7 +186,7 @@ const NobleMBRList = () => {
                   <div className="flex flex-col sm:flex-row gap-3">
                     <button
                       onClick={() =>
-                       navigate(`/PROD/detailattente/${mbr.id_mbr}/${code_fab}`)
+                       navigate(`/PROD/detailattente/${mbr.id_mbr}/${code_fab}/${id_camp}`)
                       }
                       className="flex-1 bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 hover:border-white/40 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-200 flex items-center justify-center gap-2 group"
                     >

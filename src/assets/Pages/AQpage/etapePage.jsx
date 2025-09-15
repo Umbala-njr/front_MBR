@@ -4,7 +4,7 @@ import FabricationList from '../../composant/AQ/etape';
 
 const EtapePage = () => {
   return (
-    <div>
+    <div className='flex flex-col w-full h-full'>
       <FabricationList />
     </div>
   );
