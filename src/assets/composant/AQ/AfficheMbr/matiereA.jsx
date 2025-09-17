@@ -226,7 +226,7 @@ const  MatiereafficheAQ = () => {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-gray-100">
       {/* Header */}
       <div className="bg-gradient-to-r from-green-800 to-green-700 shadow-xl">
-        <div className="max-w-7xl mx-auto px-6 py-8">
+        <div className="max-w-full mx-auto px-6 py-8">
           <div className="flex items-center justify-between">
             <div className="animate-slideInLeft">
               <div className="flex items-center space-x-4">
@@ -253,7 +253,7 @@ const  MatiereafficheAQ = () => {
       </div>
 
       {/* Contenu principal */}
-      <div className="max-w-7xl mx-auto px-6 py-8">
+      <div className="max-w-full mx-auto px-6 py-8">
         {/* Message d'erreur */}
         {error && (
           <div className="bg-red-50 border-l-4 border-red-400 p-4 rounded-r-lg animate-shake mb-6">

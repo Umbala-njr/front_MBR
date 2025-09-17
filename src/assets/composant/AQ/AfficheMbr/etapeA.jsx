@@ -75,11 +75,6 @@ const EtapeafficheMBR = () => {
                   </span>
                 </div>
 
-                {/* Badge ID */}
-                <div className="absolute top-4 right-4 bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
-                  ID: {etape.id_eta}
-                </div>
-
                 {/* Contenu */}
                 <div className="mt-6">
                   <h2 className="text-xl font-bold text-green-900 mb-4 leading-tight">

@@ -77,10 +77,10 @@ const Login = () => {
         navigate('/PROD/home');
         break;
         case 'operateur':
-        navigate('/OPROD/campagneOuvrier');
+        navigate('/OPROD/campagneProduitOuvrier');
         break;
         case 'ce':
-        navigate('/OPROD/campagneOuvrier');
+        navigate('/OPROD/campagneProduitOuvrier');
         break;
       default:
         navigate('/assurence');

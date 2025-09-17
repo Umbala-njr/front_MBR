@@ -49,7 +49,7 @@ const NavigationAQMBR = () => {
   ];
 
   const handleHomeClick = () => {
-    navigate("/PROD");
+    navigate(`/AQ/${code_fab}/${id_camp}`);
   };
 
   if (loading) {
@@ -65,7 +65,7 @@ const NavigationAQMBR = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-green-900 to-green-800 p-6">
-      <div className="max-w-md mx-auto">
+      <div className="max-w-full mx-auto">
         {/* Header avec bouton retour */}
         <div className="flex items-center justify-between mb-8">
           <motion.button

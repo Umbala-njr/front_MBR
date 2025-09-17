@@ -30,7 +30,7 @@ const DetailsOuvrierMBR = () => {
   // Liste des pages avec leur chemin et icône
   const pages = [
     { label: "Fiche matière et solvant", path: `/OPROD/matiereOuvrier/${id_mbr}/${code_fab}`, icon: <FileText className="w-5 h-5" /> },
-    { label: "Étape", path: `/OPROD/etapeOuvrier/${id_mbr}/${code_fab}`, icon: <Workflow className="w-5 h-5" /> },
+    { label: "Étape", path: `/OPROD/etapeOuvrier/${id_mbr}/${code_fab}/${id_camp}`, icon: <Workflow className="w-5 h-5" /> },
   ];
 
   const handleHomeClick = () => {

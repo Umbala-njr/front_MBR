@@ -80,6 +80,9 @@ import MatiereOuvrierPage from './assets/Pages/Ouvrier/matiereOuvrierPage';
 import EtapeOuvriePage from './assets/Pages/Ouvrier/etapeOuvrierPage';
 import PetiteEtapeOuvrierPage from './assets/Pages/Ouvrier/petitetapeOuvrierPage';
 import ListeEchantillonsOuvrierPage from './assets/Pages/Ouvrier/ListeEchantillonsOuvrierPage';
+import ProduitsCampagneEnCoursPage from './assets/Pages/AQpage/campagne/campagneProduitPage';
+import ProduitsCampagneEnCoursProdPage from './assets/Pages/PRODpage/prodcampagneProduitPage';
+import ProduitsCampagneEnCoursOuvrierPage from './assets/Pages/Ouvrier/ProduitsCampagneEnCoursOuvrierPage';
 
 
 
@@ -125,7 +128,7 @@ function App() {
             <Route path="detailmbr/:id_mbr/:code_fab" element={<DetailPage />} />
 
             <Route path="campagneHome" element={<CampagneHomePage />} />
-            <Route path="campagneBR/encours" element={<CampagneBRPage />} />
+            <Route path="campagneBR/encours/:id_pro" element={<CampagneBRPage />} />
             <Route path="campagneBR/terminer" element={<CampagneterminerPage />} />
             <Route path="notification" element={<NotificationPage />} />
             <Route path="documentCamp/:code_fab/:id_camp" element={<DocumentCampPage />} />
@@ -139,6 +142,7 @@ function App() {
             <Route path="petiteetapeAQ/:id_mbr/:id_eta" element={<PetiteEtapeAQBRPage />} />
             <Route path="matiereAQ/:id_mbr/:code_fab" element={<MatiereAQBRPage />} />
             <Route path="echantillonAQ/:id_mbr/:code_fab" element={<EchantillonAQBRPage />} />
+            <Route path="campagneProduit" element={<ProduitsCampagneEnCoursPage />} />
 
 
           {/* ajoute d'autres sous-routes ici */}
@@ -172,21 +176,23 @@ function App() {
         <Route path="listedocument/:id_mbr" element={<ListedocumentPage />} />
         <Route path="campagne/:code_fab" element={<CampagnePage />} />
         <Route path="campagneEmission" element={<CampagneEmiPage />} />
-        <Route path="campagneProduction" element={<CampagneprodPage />} />
+        <Route path="campagneProduction/:id_pro" element={<CampagneprodPage />} />
         <Route path="terminerBR/:code_fab/:id_camp" element={<TerminerBrPage />} />
         <Route path="demandeBR/:code_fab/:id_camp" element={<DemandeBrPage />} />
+        <Route path="campagneProduit" element={<ProduitsCampagneEnCoursProdPage />} />
             {/* ajoute d'autres sous-routes ici */}
         </Route>
 
           {/* Routes protégées pour OPROD */}
         <Route path="/OPROD" element={<ProtectedRoute><OuvrierLayout /> </ProtectedRoute> }>
-            <Route path="campagneOuvrier" element={<CampagneOuvrierPage />} />
+            <Route path="campagneOuvrier/:id_pro" element={<CampagneOuvrierPage />} />
             <Route path="mbrOuvrier/:code_fab/:id_camp" element={<MbrOuvrierPage />} />
             <Route path="detailsOuvrier/:id_mbr/:code_fab/:id_camp" element={<DetailsOuvrierPage />} />
             <Route path="matiereOuvrier/:id_mbr/:code_fab" element={<MatiereOuvrierPage />} />
-            <Route path="etapeOuvrier/:id_mbr/:code_fab" element={<EtapeOuvriePage />} />
+            <Route path="etapeOuvrier/:id_mbr/:code_fab/:id_camp" element={<EtapeOuvriePage />} />
             <Route path="petiteetapeOuvrier/:id_mbr/:id_eta/:code_fab" element={<PetiteEtapeOuvrierPage />} />
             <Route path="listeEchantillonsOuvrier/:id_mbr/:code_fab" element={<ListeEchantillonsOuvrierPage />} />
+            <Route path="campagneProduitOuvrier" element={<ProduitsCampagneEnCoursOuvrierPage />} />
             {/* autres sous-routes ici */}
        
         </Route>

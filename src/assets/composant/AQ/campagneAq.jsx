@@ -48,7 +48,7 @@ const CampagneCards = () => {
 
   return (
     <div className="bg-gray-100 min-h-screen p-6">
-      <h1 className="text-3xl font-bold text-green-900 mb-8 text-center">Campagnes Disponibles</h1>
+      <h1 className="text-3xl font-bold text-green-900 mb-8 text-center">Listes Nouvelles Campagne</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {campagnes.map((camp) => (
           <div

@@ -11,7 +11,7 @@ const CampaignNavigationCards = () => {
       title: "Campagnes En Cours",
       description: "Gérer vos campagnes actives",
       icon: Play,
-      url: "/AQ/campagneBR/encours", // URL cible
+      url: "/AQ/campagneProduit", // URL cible
       type: "ongoing"
     },
     {

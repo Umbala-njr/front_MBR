@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
-
+import { useParams, useNavigate } from "react-router-dom";
 const CampagneProd = () => {
+  const { id_pro } = useParams();
   const [campagnes, setCampagnes] = useState([]);
   const navigate = useNavigate();
 
   // Charger les campagnes depuis l'API
   const fetchCampagnes = async () => {
     try {
-      const res = await axios.get("http://localhost:3000/api/campagne/afficher/Encours");
+      const res = await axios.get(`http://localhost:3000/api/campagne/afficher/Encours/${id_pro}`);
       console.log("Réponse API:", res.data);
       setCampagnes(res.data);
     } catch (err) {
