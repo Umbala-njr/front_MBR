@@ -1,3 +1,4 @@
+// src/production/Admin/PetitEtapeManager.jsx
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -9,15 +10,22 @@ const PetitEtapeManager = () => {
   const [newNom, setNewNom] = useState('');
   const [editingId, setEditingId] = useState(null);
   const [editNom, setEditNom] = useState('');
+  const [colonnes, setColonnes] = useState({});
 
   // États pour ajout colonne
   const [colData, setColData] = useState({ code: '', label: '', type_input: '', ordre: '' });
   const [openFormId, setOpenFormId] = useState(null);
+  
+  // États pour édition colonne
+  const [editingColId, setEditingColId] = useState(null);
+  const [editColData, setEditColData] = useState({
+    code: "",
+    label: "",
+    type_input: "",
+    ordre: "",
+  });
 
   const navigate = useNavigate();
-
-
-  
 
   // Charger les petites étapes
   const fetchEtapes = async () => {
@@ -29,21 +37,19 @@ const PetitEtapeManager = () => {
     }
   };
 
+  // Fonction pour charger les colonnes d'une petite étape
+  const fetchColonnes = async (id_peta) => {
+    try {
+      const res = await axios.get(`http://localhost:3000/api/colonne/listecolonne1/${id_peta}`);
+      setColonnes((prev) => ({ ...prev, [id_peta]: res.data }));
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   useEffect(() => {
     fetchEtapes();
   }, [id_eta]);
-
-  const [colonnes, setColonnes] = useState({});
-
-// Fonction pour charger les colonnes d’une petite étape
-const fetchColonnes = async (id_peta) => {
-  try {
-    const res = await axios.get(`http://localhost:3000/api/colonne/listecolonne/${id_peta}`);
-    setColonnes((prev) => ({ ...prev, [id_peta]: res.data }));
-  } catch (err) {
-    console.error(err);
-  }
-};
 
   // Ajouter une nouvelle petite étape
   const handleAdd = async () => {
@@ -55,7 +61,6 @@ const fetchColonnes = async (id_peta) => {
       });
       setNewNom('');
       fetchEtapes();
-      fetchColonnes(id_peta);
     } catch (err) {
       console.error(err);
     }
@@ -82,19 +87,44 @@ const fetchColonnes = async (id_peta) => {
         id_peta,
         ...colData,
       });
-      alert("Colonne ajoutée avec succès !");
       setColData({ code: '', label: '', type_input: '', ordre: '' });
       setOpenFormId(null);
       fetchColonnes(id_peta);
     } catch (err) {
       console.error(err);
-      alert("Erreur lors de l’ajout de la colonne");
+    }
+  };
+
+  // 🔹 Modifier une colonne (fonction du premier code)
+  const handleUpdateColonne = async (id_col, id_peta) => {
+    try {
+      await axios.put(
+        `http://localhost:3000/api/colonne/modifier/${id_col}`,
+        editColData
+      );
+      setEditingColId(null);
+      setEditColData({ code: "", label: "", type_input: "", ordre: "" });
+      fetchColonnes(id_peta);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  // 🔹 Activer / désactiver une colonne (fonction du premier code)
+  const handleToggleColonne = async (id_col, statut, id_peta) => {
+    try {
+      await axios.put(`http://localhost:3000/api/colonne/toggle/${id_col}`, {
+        statut,
+      });
+      fetchColonnes(id_peta);
+    } catch (err) {
+      console.error(err);
     }
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-950 via-green-900 to-green-800 p-4 sm:p-6 lg:p-8">
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 sm:p-8 mb-8 border border-white/20">
           <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-2">
@@ -203,22 +233,21 @@ const fetchColonnes = async (id_peta) => {
                             <Settings size={16} /> <span>Paramètre</span>
                           </button>
                           <button
-                           onClick={() => {
-                            const newOpenId = openFormId === etape.id_peta ? null : etape.id_peta;
-                            setOpenFormId(newOpenId);
-                            if (newOpenId) {
-                              fetchColonnes(etape.id_peta); // Charger les colonnes quand on ouvre
-                            }
-                          }}
+                            onClick={() => {
+                              const newOpenId = openFormId === etape.id_peta ? null : etape.id_peta;
+                              setOpenFormId(newOpenId);
+                              if (newOpenId) {
+                                fetchColonnes(etape.id_peta);
+                              }
+                            }}
                             className="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg flex items-center gap-2 shadow-md"
-                            
                           >
                             <Plus size={16} /> <span>Colonne</span>
                           </button>
                         </div>
                       </div>
 
-                     {openFormId === etape.id_peta && (
+                      {openFormId === etape.id_peta && (
                         <div className="mt-4 p-4 bg-white/10 rounded-lg">
                           <h4 className="text-white font-semibold mb-3">Ajouter une colonne</h4>
                           <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
@@ -236,12 +265,10 @@ const fetchColonnes = async (id_peta) => {
                               onChange={(e) => setColData({ ...colData, label: e.target.value })}
                               className="px-3 py-2 rounded-lg bg-white/20 text-white"
                             />
-
-                            {/* Liste déroulante pour type_input */}
                             <select
                               value={colData.type_input}
                               onChange={(e) => setColData({ ...colData, type_input: e.target.value })}
-                              className="px-3 py-2 rounded-lg bg-white/20 text-black,"
+                              className="px-3 py-2 rounded-lg bg-white/20 text-black"
                             >
                               <option value="">-- Type de champ --</option>
                               <option value="text">Texte</option>
@@ -249,7 +276,6 @@ const fetchColonnes = async (id_peta) => {
                               <option value="date">Date</option>
                               <option value="time">Heure</option>                         
                             </select>
-
                             <input
                               type="number"
                               placeholder="Ordre"
@@ -271,26 +297,123 @@ const fetchColonnes = async (id_peta) => {
                       {colonnes[etape.id_peta] && colonnes[etape.id_peta].length > 0 && (
                         <div className="mt-4 bg-white/10 p-3 rounded-lg">
                           <h5 className="text-white font-semibold mb-2">Colonnes existantes</h5>
-                          <div className="grid grid-cols-1 sm:grid-cols-5 gap-2 text-green-100 text-sm">
+                          <div className="grid grid-cols-5 gap-2 text-green-100 text-sm mb-2 border-b border-white/20 pb-2">
                             <div className="font-medium">Code</div>
                             <div className="font-medium">Label</div>
                             <div className="font-medium">Type</div>
                             <div className="font-medium">Ordre</div>
                             <div className="font-medium">Actions</div>
-
-                            {colonnes[etape.id_peta].map((col) => (
-                              <React.Fragment key={col.id_col}>
-                                <div>{col.code}</div>
-                                <div>{col.label}</div>
-                                <div>{col.type_input}</div>
-                                <div>{col.ordre}</div>
-                                <div>
-                                  {/* Ici tu pourras ajouter un bouton modifier/supprimer plus tard */}
-                                  <button className="text-green-400 hover:text-green-200">Modifier</button>
-                                </div>
-                              </React.Fragment>
-                            ))}
                           </div>
+                          
+                          {colonnes[etape.id_peta].map((col) => (
+                            <div key={col.id_col} className="grid grid-cols-5 gap-2 items-center py-2 border-b border-white/10">
+                              {editingColId === col.id_col ? (
+                                <>
+                                  <input
+                                    type="text"
+                                    value={editColData.code}
+                                    onChange={(e) =>
+                                      setEditColData({
+                                        ...editColData,
+                                        code: e.target.value,
+                                      })
+                                    }
+                                    className="px-2 py-1 rounded bg-white/20 text-white"
+                                  />
+                                  <input
+                                    type="text"
+                                    value={editColData.label}
+                                    onChange={(e) =>
+                                      setEditColData({
+                                        ...editColData,
+                                        label: e.target.value,
+                                      })
+                                    }
+                                    className="px-2 py-1 rounded bg-white/20 text-white"
+                                  />
+                                  <select
+                                    value={editColData.type_input}
+                                    onChange={(e) =>
+                                      setEditColData({
+                                        ...editColData,
+                                        type_input: e.target.value,
+                                      })
+                                    }
+                                    className="px-2 py-1 rounded bg-white/20 text-black"
+                                  >
+                                    <option value="text">Texte</option>
+                                    <option value="number">Nombre</option>
+                                    <option value="date">Date</option>
+                                    <option value="time">Heure</option>
+                                  </select>
+                                  <input
+                                    type="number"
+                                    value={editColData.ordre}
+                                    onChange={(e) =>
+                                      setEditColData({
+                                        ...editColData,
+                                        ordre: e.target.value,
+                                      })
+                                    }
+                                    className="px-2 py-1 rounded bg-white/20 text-white"
+                                  />
+                                  <div className="flex gap-2">
+                                    <button
+                                      onClick={() => handleUpdateColonne(col.id_col, etape.id_peta)}
+                                      className="bg-green-600 hover:bg-green-500 text-white px-2 py-1 rounded text-xs"
+                                    >
+                                      Enregistrer
+                                    </button>
+                                    <button
+                                      onClick={() => setEditingColId(null)}
+                                      className="bg-gray-500 hover:bg-gray-400 text-white px-2 py-1 rounded text-xs"
+                                    >
+                                      Annuler
+                                    </button>
+                                  </div>
+                                </>
+                              ) : (
+                                <>
+                                  <div>{col.code}</div>
+                                  <div>{col.label}</div>
+                                  <div>{col.type_input}</div>
+                                  <div>{col.ordre}</div>
+                                  <div className="flex gap-2">
+                                    <button
+                                      onClick={() => {
+                                        setEditingColId(col.id_col);
+                                        setEditColData({
+                                          code: col.code,
+                                          label: col.label,
+                                          type_input: col.type_input,
+                                          ordre: col.ordre,
+                                        });
+                                      }}
+                                      className="text-blue-400 hover:text-blue-200 text-sm"
+                                    >
+                                      Modifier
+                                    </button>
+                                    <button
+                                      onClick={() =>
+                                        handleToggleColonne(
+                                          col.id_col,
+                                          col.statut === 1 ? 0 : 1,
+                                          etape.id_peta
+                                        )
+                                      }
+                                      className={`${
+                                        col.statut === 1
+                                          ? "text-red-400 hover:text-red-200"
+                                          : "text-green-400 hover:text-green-200"
+                                      } text-sm`}
+                                    >
+                                      {col.statut === 1 ? "Désactiver" : "Activer"}
+                                    </button>
+                                  </div>
+                                </>
+                              )}
+                            </div>
+                          ))}
                         </div>
                       )}
                     </>

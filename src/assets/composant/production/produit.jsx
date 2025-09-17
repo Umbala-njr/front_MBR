@@ -44,7 +44,7 @@ const ProduitList = () => {
                 onClick={() => handleNavigate(prod.id_pro)}
                 className="mt-4 w-full bg-green-600 text-white py-2 px-4 rounded-xl hover:bg-green-700 transition"
               >
-                Voir MBR
+                Nouvelle Campagne
               </button>
             </div>
           </div>

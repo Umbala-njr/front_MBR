@@ -31,7 +31,7 @@ const NavigationEncoursMBR = () => {
   const pages = [
     { label: "Fiche matière et solvant", path: `/PROD/matiereaction/${id_mbr}/${code_fab}`, icon: <FileText className="w-5 h-5" /> },
     { label: "Étape", path: `/PROD/etapeaction/${id_mbr}/${code_fab}`, icon: <Workflow className="w-5 h-5" /> },
-    { label: "Liste document associé au MBR", path: `/PROD/listedocument/${id_mbr}`, icon: <Folder className="w-5 h-5" /> },
+  
   ];
 
   const handleHomeClick = () => {
