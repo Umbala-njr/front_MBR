@@ -4,14 +4,14 @@ import { useNavigate} from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowLeft} from "lucide-react";
 
-const ProduitsCampagneEnCours = () => {
+const ProduitsCampagneTerminer = () => {
   const [produits, setProduits] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
     axios
-      .get("http://localhost:3000/api/produit/produitcampagne/encours")
+      .get("http://localhost:3000/api/produit/produitcampagne/terminer")
       .then((res) => {
         setProduits(res.data);
         setLoading(false);
@@ -46,7 +46,7 @@ const ProduitsCampagneEnCours = () => {
         <ArrowLeft className="w-6 h-6" />
         </motion.button>
       <h2 className="text-2xl font-bold mb-4 text-emerald-300">
-        Produits avec campagne en cours
+        Produits avec campagne Terminer
       </h2>
       <ul className="space-y-4">
         {produits.map((prod) => (
@@ -56,7 +56,7 @@ const ProduitsCampagneEnCours = () => {
           >
             <span>{prod.nom_pro}</span>
             <button
-              onClick={() => navigate(`/AQ/campagneBR/encours/${prod.id_pro}`)}
+              onClick={() => navigate(`/AQ/campagneBR/terminer/${prod.id_pro}`)}
               className="px-4 py-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-400 transition"
             >
               Voir campagnes
@@ -68,4 +68,4 @@ const ProduitsCampagneEnCours = () => {
   );
 };
 
-export default ProduitsCampagneEnCours;
+export default ProduitsCampagneTerminer;

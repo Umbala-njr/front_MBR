@@ -83,6 +83,9 @@ import ListeEchantillonsOuvrierPage from './assets/Pages/Ouvrier/ListeEchantillo
 import ProduitsCampagneEnCoursPage from './assets/Pages/AQpage/campagne/campagneProduitPage';
 import ProduitsCampagneEnCoursProdPage from './assets/Pages/PRODpage/prodcampagneProduitPage';
 import ProduitsCampagneEnCoursOuvrierPage from './assets/Pages/Ouvrier/ProduitsCampagneEnCoursOuvrierPage';
+import ProduitsCampagneTerminerPage from './assets/Pages/AQpage/campagne/campagneProduit1';
+import TerminerMBRListAQPage from './assets/Pages/AffichebrAq/terminerBrAQ';
+import MbrDetailTerminerAQPage from './assets/Pages/AffichebrAq/mbrdetailTerminerAqPage';
 
 
 
@@ -129,20 +132,24 @@ function App() {
 
             <Route path="campagneHome" element={<CampagneHomePage />} />
             <Route path="campagneBR/encours/:id_pro" element={<CampagneBRPage />} />
-            <Route path="campagneBR/terminer" element={<CampagneterminerPage />} />
+            <Route path="campagneBR/terminer/:id_pro" element={<CampagneterminerPage />} />
             <Route path="notification" element={<NotificationPage />} />
             <Route path="documentCamp/:code_fab/:id_camp" element={<DocumentCampPage />} />
 
             <Route path="archive" element={<ArchivePage />} />
             <Route path="atelieretape/:code_fab" element={<AtelierEtapePage />} />
 
-            <Route path="encoursAQ/:code_fab/:id_camp" element={<EncourbrAQPage />} />
+            <Route path="encoursAQ/:code_fab/:id_camp/:id_pro" element={<EncourbrAQPage />} />
             <Route path="detailencoursAQ/:id_mbr/:code_fab/:id_camp" element={<NavigationAQBRPage />} />
-            <Route path="etapeAQ/:id_mbr/:code_fab" element={<EtapeAQBRPage />} />
+            <Route path="etapeAQ/:id_mbr/:code_fab/:id_camp" element={<EtapeAQBRPage />} />
             <Route path="petiteetapeAQ/:id_mbr/:id_eta" element={<PetiteEtapeAQBRPage />} />
             <Route path="matiereAQ/:id_mbr/:code_fab" element={<MatiereAQBRPage />} />
             <Route path="echantillonAQ/:id_mbr/:code_fab" element={<EchantillonAQBRPage />} />
             <Route path="campagneProduit" element={<ProduitsCampagneEnCoursPage />} />
+            <Route path="campagneProduit1" element={<ProduitsCampagneTerminerPage />} />
+            <Route path="terminerBRAQ/:code_fab/:id_camp" element={<TerminerMBRListAQPage />} />
+            <Route path="mbrdetail/:id_mbr/:code_fab/:id_camp" element={<MbrDetailTerminerAQPage />} />
+            
 
 
           {/* ajoute d'autres sous-routes ici */}
@@ -167,10 +174,10 @@ function App() {
         <Route path="encours/:code_fab/:id_camp" element={<EncoursBRPage />} />
         <Route path="detailencours/:id_mbr/:code_fab/:id_camp" element={<DetailencoursPage />} />
 
-        <Route path="matiereaction/:id_mbr/:code_fab" element={<MatiereactionPage />} />
+        <Route path="matiereaction/:id_mbr/:code_fab/:id_camp" element={<MatiereactionPage />} />
         <Route path="tableaumatiereaction/:id_mbr/:id_mat" element={<TableaumatiereactionPage />} />
-        <Route path="echantillonaction/:id_mbr/:code_fab" element={<EchantillonactionPage />} />
-        <Route path="etapeaction/:id_mbr/:code_fab" element={<EtapebymbractionPage />} />
+        <Route path="echantillonaction/:id_mbr/:code_fab/" element={<EchantillonactionPage />} />
+        <Route path="etapeaction/:id_mbr/:code_fab/:id_camp" element={<EtapebymbractionPage />} />
         <Route path="petiteetapeaction/:id_mbr/:id_eta/:code_fab" element={<PetitetapembrActionPage />} />
         <Route path="valeuretapeaction/:id_mbr/:id_eta/:id_peta" element={<ValeuretapeactionBrPage/>} />
         <Route path="listedocument/:id_mbr" element={<ListedocumentPage />} />

@@ -1,16 +1,19 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
-import { ChevronRight, Package, Settings, Search, Filter, Plus, X, ChevronDown } from "lucide-react";
+import { useParams, useNavigate  } from "react-router-dom";
+import { ChevronRight, Package, Settings, Search, Filter, Plus, X, ChevronDown, ArrowLeft } from "lucide-react";
 import axios from "axios";
+import { motion } from "framer-motion";
+
 
 const MatiereactionManagerWithTable = () => {
   const [matieres, setMatieres] = useState([]);
-  const { id_mbr, code_fab } = useParams();
+  const { id_mbr, code_fab, id_camp } = useParams();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const [activeTable, setActiveTable] = useState(null);
   const [tableData, setTableData] = useState({});
   const [savedValeurs, setSavedValeurs] = useState({});
+  const navigate = useNavigate();
 
   // Fonction pour récupérer toutes les matières pour ce code_fab
   const fetchMatieres = async () => {
@@ -155,6 +158,11 @@ const MatiereactionManagerWithTable = () => {
     }
   };
 
+   const handleretour = () => {
+    navigate(`/PROD/detailencours/${id_mbr}/${code_fab}/${id_camp}`);
+  };
+
+
   // Fonction pour rendre les inputs selon leur type
   const renderInput = (id_mat, row_id, col, currentValue) => {
     const isSaved = savedValeurs[`${row_id}_${col.id_colm}`] || !!currentValue;
@@ -253,7 +261,16 @@ const MatiereactionManagerWithTable = () => {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-gray-100">
       {/* Header */}
       <div className="bg-gradient-to-r from-green-800 to-green-700 shadow-xl">
-        <div className="max-w-7xl mx-auto px-6 py-8">
+        <div className="max-w-full mx-auto px-6 py-8">
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={handleretour}
+          className="flex items-center text-white bg-emerald-600 hover:bg-emerald-700 rounded-full p-2 transition-all duration-200 mb-4"
+          title="Retour"
+        >
+          <ArrowLeft className="w-6 h-6" />
+        </motion.button>
           <div className="flex items-center justify-between">
             <div className="animate-slideInLeft">
               <div className="flex items-center space-x-4">
@@ -280,7 +297,7 @@ const MatiereactionManagerWithTable = () => {
       </div>
 
       {/* Contenu principal */}
-      <div className="max-w-7xl mx-auto px-6 py-8">
+      <div className="max-w-full mx-auto px-6 py-8">
         {/* Message d'erreur */}
         {error && (
           <div className="bg-red-50 border-l-4 border-red-400 p-4 rounded-r-lg animate-shake mb-6">

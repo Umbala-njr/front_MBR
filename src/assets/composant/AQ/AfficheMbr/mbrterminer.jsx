@@ -1,42 +1,36 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { motion } from "framer-motion";
-import { ArrowLeft} from "lucide-react";
 
 
-const EncoursMBRListAQ = () => {
-  const { code_fab, id_camp, id_pro } = useParams();
+const TerminerMBRListAQ = () => {
+  const { code_fab, id_camp } = useParams();
   const [mbrs, setMbrs] = useState([]);
   const [loading, setLoading] = useState(true);
-  const statut = "en cours"; // fixé
+  const statut = "terminer"; // fixé
   const navigate = useNavigate();
 
- 
+  // ⚡ récupère infos user connecté (depuis localStorage)
+  const user = JSON.parse(localStorage.getItem("user"));
+  const id_uti = user?.id_uti;
+  const token = localStorage.getItem("token");
+
   useEffect(() => {
     const fetchMBR = async () => {
       try {
-        const res = await axios.get(`http://localhost:3000/api/mbr/mbr/codefabe/encours/${id_camp}`, {
+        const res = await axios.get(`http://localhost:3000/api/mbr/mbr/codefab/terminer/${id_camp}`, {
           params: { statut, code_fab},
         });
         setMbrs(res.data);
-        console.log(statut, code_fab);
       } catch (error) {
         console.error("Erreur récupération MBR :", error);
-        
       } finally {
         setLoading(false);
       }
     };
     fetchMBR();
-  }, [statut, code_fab, id_camp]);
+  }, [statut, code_fab]);
 
-  const handleretour = () => {
-    navigate(`/AQ/campagneBR/encours/${id_pro}`);
-  };
-
-
-  // ⚡ bouton "Lancement"
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-emerald-950 via-slate-900 to-emerald-900 flex items-center justify-center">
@@ -52,17 +46,7 @@ const EncoursMBRListAQ = () => {
     <div className="min-h-screen bg-gradient-to-br from-emerald-950 via-slate-900 to-emerald-900">
       {/* Header avec effet glassmorphism */}
       <div className="backdrop-blur-sm bg-white/5 border-b border-emerald-700/30 sticky top-0 z-10">
-        <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={handleretour}
-            className="flex items-center text-white bg-emerald-600 hover:bg-emerald-700 rounded-full p-2 transition-all duration-200"
-            title="Retour"
-          >
-            <ArrowLeft className="w-6 h-6" />
-          </motion.button>
-        
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
               <h1 className="text-3xl sm:text-4xl font-bold text-white mb-2 flex items-center gap-3">
@@ -92,7 +76,7 @@ const EncoursMBRListAQ = () => {
       </div>
 
       {/* Contenu principal */}
-      <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {mbrs.length === 0 ? (
           <div className="text-center py-20">
             <div className="w-24 h-24 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -131,6 +115,9 @@ const EncoursMBRListAQ = () => {
                   <h3 className="text-emerald-300 font-semibold text-lg">
                     {mbr.nom_fab}
                   </h3>
+                  <h3 className="text-emerald-300 font-semibold text-lg">
+                    {mbr.BR}
+                  </h3>
                 </div>
 
                 {/* Corps de la carte */}
@@ -147,15 +134,65 @@ const EncoursMBRListAQ = () => {
                     <div className="flex items-center gap-3">
                       <div className="w-2 h-2 bg-emerald-400 rounded-full"></div>
                       <div>
-                        <span className="text-emerald-300 text-sm font-medium">Lancer par</span>
-                        <p className="text-white font-semibold">{mbr.nom_uti_lancement}</p>
+                        <span className="text-emerald-300 text-sm font-medium">Date debut Fabrication</span>
+                        <p className="text-white font-semibold">
+                          {new Date(mbr.date_debut).toLocaleDateString("fr-FR", {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
+                          })}
+                        </p>
                       </div>
                     </div>
 
                     <div className="flex items-center gap-3">
                       <div className="w-2 h-2 bg-emerald-400 rounded-full"></div>
                       <div>
-                        <span className="text-emerald-300 text-sm font-medium">Date de lancement</span>
+                        <span className="text-emerald-300 text-sm font-medium">Date Fin Fabrication</span>
+                        <p className="text-white font-semibold">
+                          {new Date(mbr.date_fin).toLocaleDateString("fr-FR", {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
+                          })}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                      <div className="w-2 h-2 bg-emerald-400 rounded-full"></div>
+                      <div>
+                        <span className="text-emerald-300 text-sm font-medium">Émetteur</span>
+                        <p className="text-white font-semibold">{mbr.nom_uti_emission}</p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                      <div className="w-2 h-2 bg-emerald-400 rounded-full"></div>
+                      <div>
+                        <span className="text-emerald-300 text-sm font-medium">Date d'émission</span>
+                        <p className="text-white font-semibold">
+                          {new Date(mbr.date_emi).toLocaleDateString("fr-FR", {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
+                          })}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                   <div className="flex items-center gap-3">
+                      <div className="w-2 h-2 bg-emerald-400 rounded-full"></div>
+                      <div>
+                        <span className="text-emerald-300 text-sm font-medium">Lancer Par</span>
+                        <p className="text-white font-semibold">{mbr.nom_uti_lancement}</p>
+                      </div>
+                    </div>
+
+                     <div className="flex items-center gap-3">
+                      <div className="w-2 h-2 bg-emerald-400 rounded-full"></div>
+                      <div>
+                        <span className="text-emerald-300 text-sm font-medium">Date de Lancement</span>
                         <p className="text-white font-semibold">
                           {new Date(mbr.date_lance).toLocaleDateString("fr-FR", {
                             year: 'numeric',
@@ -165,7 +202,6 @@ const EncoursMBRListAQ = () => {
                         </p>
                       </div>
                     </div>
-                  </div>
                 </div>
 
                 {/* Footer avec boutons d'action */}
@@ -173,7 +209,7 @@ const EncoursMBRListAQ = () => {
                   <div className="flex flex-col sm:flex-row gap-3">
                     <button
                       onClick={() =>
-                       navigate(`/AQ/detailencoursAQ/${mbr.id_mbr}/${code_fab}/${id_camp}`)
+                       navigate(`/AQ/mbrdetail/${mbr.id_mbr}/${code_fab}/${id_camp}`)
                       }
                       className="flex-1 bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 hover:border-white/40 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-200 flex items-center justify-center gap-2 group"
                     >
@@ -181,7 +217,7 @@ const EncoursMBRListAQ = () => {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                       </svg>
-                      Détails
+                      Verifier
                     </button>
                   </div>
                 </div>
@@ -217,4 +253,4 @@ const EncoursMBRListAQ = () => {
   );
 };
 
-export default EncoursMBRListAQ ;
+export default TerminerMBRListAQ;

@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import { ArrowLeft} from "lucide-react";
 
 const CampagneBR = () => {
   const { id_pro } = useParams();
@@ -25,11 +27,23 @@ const fetchCampagnes = async () => {
 
   // Redirection vers création MBR
   const handleCreerMBR = (code_fab, id_camp) => {
-    navigate(`/AQ/encoursAQ/${code_fab}/${id_camp}`);
+    navigate(`/AQ/encoursAQ/${code_fab}/${id_camp}/${id_pro}`);
+  };
+  const handleretour = () => {
+    navigate(`/AQ/campagneProduit`);
   };
 
   return (
     <div className="bg-gray-100 min-h-screen p-6">
+       <motion.button
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+        onClick={handleretour}
+        className="flex items-center text-white bg-emerald-600 hover:bg-emerald-700 rounded-full p-2 transition-all duration-200"
+        title="Retour"
+        >
+         <ArrowLeft className="w-6 h-6" />
+       </motion.button>
       <h1 className="text-3xl font-bold text-green-900 mb-8 text-center">Campagnes en cours</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {campagnes.map((camp) => (

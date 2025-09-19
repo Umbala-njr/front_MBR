@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Plus, FileText, X, Factory, Users, Eye } from 'lucide-react';
-import { Link, useParams } from 'react-router-dom';
+import { Plus, FileText, Factory, Users, Eye, Play } from 'lucide-react';
+import { Link, useParams, useNavigate } from 'react-router-dom';
 
-// Notification (inchangé)
+// Notification
 const NotificationComponent = ({ notification, onClose }) => {
   if (!notification) return null;
   const { type, message } = notification;
@@ -25,6 +25,7 @@ const NotificationComponent = ({ notification, onClose }) => {
 
 const MBRManager = () => {
   const { code_fab, id_atelier, id_camp } = useParams();
+  const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
     num_mbr: '',
@@ -32,12 +33,14 @@ const MBRManager = () => {
     code_fab: code_fab,
     id_atelier: id_atelier,
     id_uti: '',
-    id_camp:id_camp
+    id_camp: id_camp
   });
   const [mbrList, setMbrList] = useState([]);
   const [notification, setNotification] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isFetching, setIsFetching] = useState(false);
+  const [campagneInfo, setCampagneInfo] = useState(null);
+  const [isLaunching, setIsLaunching] = useState(false);
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("user"));
@@ -45,7 +48,8 @@ const MBRManager = () => {
       setFormData(prev => ({ ...prev, id_uti: user.id_uti }));
     }
     fetchMBRAttente();
-  }, [code_fab]);
+    fetchCampagneInfo();
+  }, [code_fab, id_camp]);
 
   const fetchMBRAttente = async () => {
     setIsFetching(true);
@@ -57,6 +61,15 @@ const MBRManager = () => {
       showNotification('error', 'Erreur lors du chargement des MBR');
     } finally {
       setIsFetching(false);
+    }
+  };
+
+  const fetchCampagneInfo = async () => {
+    try {
+      const res = await axios.get(`http://localhost:3000/api/campagne/${id_camp}`);
+      setCampagneInfo(res.data);
+    } catch (err) {
+      console.error('Erreur chargement info campagne:', err);
     }
   };
 
@@ -97,7 +110,7 @@ const MBRManager = () => {
         code_fab: code_fab,
         id_atelier: id_atelier,
         id_uti: id_uti,
-        id_camp:id_camp
+        id_camp: id_camp
       });
 
       await fetchMBRAttente();
@@ -107,6 +120,39 @@ const MBRManager = () => {
       showNotification("error", err.response?.data?.message || "Erreur lors de la création du MBR");
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  // Fonction pour lancer une campagne
+  const handleLancerCampagne = async () => {
+    try {
+      setIsLaunching(true);
+      // Récupérer l'utilisateur connecté depuis localStorage
+      const user = JSON.parse(localStorage.getItem("user"));
+      const id_uti = user?.id_uti;
+
+      if (!id_uti) {
+        showNotification("error", "Utilisateur non connecté !");
+        setIsLaunching(false);
+        return;
+      }
+
+      await axios.put(`http://localhost:3000/api/campagne/lancer/campBR/${id_camp}`, { id_uti });
+
+      showNotification("success", `Campagne lancée avec succès !`);
+      
+      // Rafraîchir les informations de la campagne
+      await fetchCampagneInfo();
+      
+      // Rediriger vers la page des campagnes après un délai
+      setTimeout(() => {
+        navigate("/AQ/campagnes");
+      }, 2000);
+    } catch (err) {
+      console.error("Erreur lancement campagne + MBR:", err);
+      showNotification("error", err.response?.data?.message || "Erreur lors du lancement de la campagne");
+    } finally {
+      setIsLaunching(false);
     }
   };
 
@@ -123,22 +169,51 @@ const MBRManager = () => {
             <p className="text-emerald-100 mt-2 text-sm sm:text-base">
               Système de gestion des Matières Brutes Réalisées
             </p>
+            {campagneInfo && (
+              <div className="mt-3 flex flex-wrap gap-4">
+                <div className="bg-emerald-700/50 px-3 py-1 rounded-lg">
+                  <span className="text-sm">Campagne: {campagneInfo.nom_fab}</span>
+                </div>
+                <div className="bg-emerald-700/50 px-3 py-1 rounded-lg">
+                  <span className="text-sm">Statut: {campagneInfo.statut}</span>
+                </div>
+                <div className="bg-emerald-700/50 px-3 py-1 rounded-lg">
+                  <span className="text-sm">ID: {id_camp}</span>
+                </div>
+              </div>
+            )}
           </div>
-          <div className="flex items-center space-x-4 text-emerald-100">
-            <div className="flex items-center space-x-2">
-              <Factory className="h-5 w-5" />
-              <span className="text-sm font-medium">{formData.code_fab}</span>
+          <div className="flex flex-col items-end space-y-3">
+            <div className="flex items-center space-x-4 text-emerald-100">
+              <div className="flex items-center space-x-2">
+                <Factory className="h-5 w-5" />
+                <span className="text-sm font-medium">{formData.code_fab}</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Users className="h-5 w-5" />
+                <span className="text-sm font-medium">{mbrList.length} MBR</span>
+              </div>
             </div>
-            <div className="flex items-center space-x-2">
-              <Users className="h-5 w-5" />
-              <span className="text-sm font-medium">{mbrList.length} MBR</span>
-            </div>
+            
+            {/* Bouton Lancer la campagne - TOUJOURS VISIBLE MAINTENANT */}
+            <button
+              onClick={handleLancerCampagne}
+              disabled={isLaunching}
+              className={`flex items-center px-4 py-2 rounded-lg font-semibold transition-all ${
+                isLaunching
+                  ? 'bg-gray-400 text-gray-200 cursor-not-allowed'
+                  : 'bg-green-700 hover:bg-green-800 text-white shadow-md hover:shadow-lg'
+              }`}
+            >
+              <Play className="h-4 w-4 mr-2" />
+              {isLaunching ? 'Lancement...' : 'Lancer la Campagne'}
+            </button>
           </div>
         </div>
       </div>
 
       <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {/* Formulaire création (inchangé) */}
+        {/* Formulaire création */}
         <div className="lg:col-span-4">
           <div className="bg-white rounded-2xl shadow-xl border border-gray-100 sticky top-8">
             <div className="bg-gradient-to-r from-emerald-600 to-emerald-700 text-white p-6 rounded-t-2xl flex items-center space-x-3">
@@ -199,7 +274,7 @@ const MBRManager = () => {
           </div>
         </div>
 
-        {/* Liste MBR - Partie modifiée */}
+        {/* Liste MBR */}
         <div className="lg:col-span-8">
           <div className="bg-white rounded-2xl shadow-xl border border-gray-100">
             <div className="bg-gradient-to-r from-emerald-600 to-emerald-700 text-white p-6 rounded-t-2xl flex items-center justify-between">

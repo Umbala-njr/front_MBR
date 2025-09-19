@@ -72,7 +72,7 @@ const AtelierManager = () => {
         </div>
 
         {/* Form Section */}
-        <div className="max-w-3xl mx-auto mb-16">
+        <div className="max-w-full mx-auto mb-16">
           <div className="bg-slate-800/90 backdrop-blur-sm rounded-3xl shadow-2xl border border-slate-700/50 overflow-hidden">
             <div className="bg-gradient-to-r from-emerald-700 to-emerald-800 px-8 py-6">
               <h2 className="text-2xl font-bold text-white flex items-center">

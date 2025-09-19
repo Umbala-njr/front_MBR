@@ -19,7 +19,7 @@ const CampaignNavigationCards = () => {
       title: "Campagnes Terminées",
       description: "Consulter vos campagnes finalisées",
       icon: CheckCircle,
-      url: "/AQ/campagneBR/terminer", // URL cible
+      url: "/AQ/campagneProduit1", // URL cible
       type: "completed"
     }
   ];
@@ -36,7 +36,7 @@ const CampaignNavigationCards = () => {
           Tableau de Bord Campagnes
         </h1>
         <p className="text-xl text-emerald-700 max-w-2xl mx-auto leading-relaxed">
-          Accédez rapidement à vos campagnes marketing. Suivez vos campagnes actives ou analysez les performances de celles déjà terminées.
+          Accédez rapidement à vos campagnes production. Suivez vos campagnes actives ou analysez les performances de celles déjà terminées.
         </p>
       </div>
 

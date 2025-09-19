@@ -43,13 +43,13 @@ const NavigationAQMBR = () => {
     },
     {
       label: "Étape",
-      path: `/AQ/etapeAQ/${id_mbr}/${code_fab}`,
+      path: `/AQ/etapeAQ/${id_mbr}/${code_fab}/${id_camp}`,
       icon: <Workflow className="w-5 h-5" />,
     },
   ];
 
   const handleHomeClick = () => {
-    navigate(`/AQ/${code_fab}/${id_camp}`);
+    navigate(`/AQ/encoursAQ/${code_fab}/${id_camp}`);
   };
 
   if (loading) {

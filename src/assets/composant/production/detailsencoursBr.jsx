@@ -29,8 +29,8 @@ const NavigationEncoursMBR = () => {
 
   // Liste des pages avec leur chemin et icône
   const pages = [
-    { label: "Fiche matière et solvant", path: `/PROD/matiereaction/${id_mbr}/${code_fab}`, icon: <FileText className="w-5 h-5" /> },
-    { label: "Étape", path: `/PROD/etapeaction/${id_mbr}/${code_fab}`, icon: <Workflow className="w-5 h-5" /> },
+    { label: "Fiche matière et solvant", path: `/PROD/matiereaction/${id_mbr}/${code_fab}/${id_camp}`, icon: <FileText className="w-5 h-5" /> },
+    { label: "Étape", path: `/PROD/etapeaction/${id_mbr}/${code_fab}/${id_camp}`, icon: <Workflow className="w-5 h-5" /> },
   
   ];
 

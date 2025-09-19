@@ -231,11 +231,11 @@ const EtapeafficheByMBR = () => {
 
   // Navigation vers échantillon
   const handleEchantillonClick = () => {
-    navigate(`/OPROD/listeEchantillonsOuvrier/${id_mbr}/${code_fab}`);
+    navigate(`/PROD/echantillonaction/${id_mbr}/${code_fab}`);
   };
 
   const handleretour = () => {
-    navigate(`/OPROD/detailsOuvrier/${id_mbr}/${code_fab}/${id_camp}`);
+    navigate(`/PROD/detailencours/${id_mbr}/${code_fab}/${id_camp}`);
   };
 
   // Utilitaire valeur
@@ -517,7 +517,7 @@ const EtapeafficheByMBR = () => {
                                   className={`px-3 py-1 rounded-lg shadow transition flex items-center gap-2 text-sm ${
                                     tableData[peta.id_peta]?.verified
                                       ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                                      : "bg-green-600 hover:bg-green-700 text-white"
+                                      : "bg-blue-600 hover:bg-blue-700 text-white"
                                   }`}
                                 >
                                   {tableData[peta.id_peta]?.verified

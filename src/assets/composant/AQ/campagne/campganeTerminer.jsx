@@ -1,15 +1,20 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import { motion } from "framer-motion";
+import { ArrowLeft} from "lucide-react";
+
 
 const CampagneTerminer = () => {
+  const { id_pro } = useParams(); 
   const [campagnes, setCampagnes] = useState([]);
   const navigate = useNavigate();
+  
 
   // Charger les campagnes depuis l'API
 const fetchCampagnes = async () => {
   try {
-    const res = await axios.get("http://localhost:3000/api/campagne/voir/terminer");
+    const res = await axios.get(`http://localhost:3000/api/campagne/voir/terminer/${id_pro}`);
     console.log("Réponse API:", res.data);
     setCampagnes(res.data);
   } catch (err) {
@@ -26,9 +31,25 @@ const fetchCampagnes = async () => {
   const handleCreerMBR = (code_fab, id_camp) => {
     navigate(`/AQ/documentCamp/${code_fab}/${id_camp}`);
   };
+   const handleretour = () => {
+    navigate(`/AQ/campagneProduit1 `);
+  };
+
+  const handleVoirMBR = (code_fab, id_camp) => {
+    navigate(`/AQ/terminerBRAQ/${code_fab}/${id_camp}`);
+  };
 
   return (
     <div className="bg-gray-100 min-h-screen p-6">
+      <motion.button
+               whileHover={{ scale: 1.05 }}
+               whileTap={{ scale: 0.95 }}
+               onClick={handleretour}
+               className="flex items-center text-white bg-emerald-600 hover:bg-emerald-700 rounded-full p-2 transition-all duration-200"
+               title="Retour"
+              >
+              <ArrowLeft className="w-6 h-6" />
+              </motion.button>
       <h1 className="text-3xl font-bold text-green-900 mb-8 text-center">Campagnes Disponibles</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {campagnes.map((camp) => (
@@ -79,6 +100,17 @@ const fetchCampagnes = async () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 Validation Campagne
+              </button>
+
+               <button
+                onClick={() => handleVoirMBR (camp.code_fab, camp.id_camp)}
+                className="flex-1 px-4 py-2 bg-green-800 text-white rounded-lg shadow hover:bg-green-900 transition-colors flex items-center justify-center"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Voir MBR
               </button>
             </div>
           </div>
